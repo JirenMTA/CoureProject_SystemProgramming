@@ -99,6 +99,9 @@ void accept_client(int& listen_fd)
 }
 
 
+//Add new user 'SEC_OPERATOR' before run server
+// command: sudo useradd -m -G adm,cdrom,sudo -s /bin/bash SEC_OPERATOR
+
 
 int main()
 {
