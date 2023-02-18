@@ -105,7 +105,6 @@ void accept_client(int& listen_fd)
 
 int main()
 {
-	setuid(getuid());
 
 	char cwd[64];
 	struct passwd* pass;
