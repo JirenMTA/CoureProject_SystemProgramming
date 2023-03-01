@@ -11,6 +11,7 @@
 #include <signal.h>
 #include <pwd.h>
 #include "../Include/common.h"
+#include "../Include/type_function.cpp"
 using namespace std;
 
 
@@ -85,13 +86,34 @@ void accept_client(int& listen_fd)
 		{
 			id = get_uid_from_socket(incoming_fd);
 			cout << KMAG <<"Client " << id << " connected!" << KNRM << endl;
+			add_new_user_in_storage(id);
 			while (true)
 			{
-				res = check(recv(incoming_fd, (void*)(msg), 8, MSG_WAITALL));
+				package_message msg;
+				res = check(recv(incoming_fd, (void*)&msg, sizeof(msg), MSG_WAITALL));
 				check(res);
-				if (errno == ENOTCONN || res < 8)
-					break;	
-				cout << id << ": " << msg << endl;
+				if (errno == ENOTCONN || res < sizeof(package_message))
+					break;
+				struct res_analist analist_req = analist_requets(msg, incoming_fd);
+
+				if (analist_req.req == REQ_OPEN)
+				{
+					cout << "\n>> Client " << analist_req.uid << " send request to file " << analist_req.path_to_file << " of: " << analist_req.target_uid << endl;  
+					cout << ">> Got right: " << convert_right_to_string(analist_req.right) << endl;
+					if (analist_req.right >= 0)
+					{	
+						flag = get_flag_open_from_right(analist_req.right);
+						fd_to_send = open(analist_req.path_to_file, flag, analist_req.mode);
+
+						cout << "fd = " << fd_to_send << endl;
+						if (fd_to_send < 0)
+							analist_req.result_code = false;
+						else
+							analist_req.result_code = true;
+						send_back_result_analist(analist_req, incoming_fd);
+						send_descript(incoming_fd, fd_to_send);
+					}
+				}	
 			}
 			cout << "Client " << id << " disconnected!" << endl;
 		}
@@ -114,8 +136,10 @@ int main()
 		printf("User must be SEC_OPERTOR!\n");
 		exit(-1);
 	}
+	read_setting_file();
+
 	remove(SOCKET_PATH);
-	chdir("/home/SEC_OPERATOR");
+	chdir(working_directory);
 
 	struct sigaction act{};
 	act.sa_flags = SA_NOCLDWAIT;

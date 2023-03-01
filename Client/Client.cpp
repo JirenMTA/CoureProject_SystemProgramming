@@ -1,25 +1,22 @@
 #include <iostream>
 #include <sys/stat.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #include "../Include/common.h"
-
 using namespace std;
 
 
 int main()
 {
-	char msg[32];
-	int socketFd = socket(AF_UNIX, SOCK_SEQPACKET, 0);
-    sockaddr_un socketAddr;
-	memset(&socketAddr, 0, sizeof(sockaddr_un));
-    socketAddr.sun_family = AF_UNIX;
-    strncpy(socketAddr.sun_path, SOCKET_PATH, sizeof(socketAddr.sun_path) -1);
-    check(connect(socketFd, (sockaddr*) &socketAddr, sizeof(socketAddr)));
-	while (true)
-	{
-		cout << "Input message: ";
-		cin >> msg;
-		check(send(socketFd, msg, 8, MSG_WAITALL));
-	}
+	char data[32];
+	sec_init();
+	int fd;
+	
+	fd = sec_openat(1002, "test1", 0x777);
+	read(fd, data, sizeof(data));
+	cout << "Got data of file: " << data << endl;
+
 	return 0;
 
 }
