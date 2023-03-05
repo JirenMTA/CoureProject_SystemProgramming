@@ -70,7 +70,7 @@ void task_get_right()
 void task_try_get_storage()
 {
 	int owner;
-    vector<pair<string, bool>> res;
+	vector<pair<string, bool>> res;
 	cout << ">> Input owner: ";
 	cin >> owner;
 	res = sec_list_storage(owner);
