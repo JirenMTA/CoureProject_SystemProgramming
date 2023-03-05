@@ -12,6 +12,7 @@
 #include "type_function.cpp"
 #include <nlohmann/json.hpp>
 #include <libconfig.h>
+#include <pwd.h>
 
 using json = nlohmann::json;
 using namespace std;
@@ -26,7 +27,7 @@ int read_setting_file()
 	config_t cfg;
 	config_init(&cfg);
     
-    if (!config_read_file(&cfg, "../../Include/config.cfg")) {
+    if (!config_read_file(&cfg, "/usr/local/bin/config.cfg")) {
 		fprintf(stderr, "%s:%d - %s\n",
 		config_error_file(&cfg),
 		config_error_line(&cfg),
@@ -48,14 +49,20 @@ int read_setting_file()
 
 void create_socket(int& fd_to_create)
 {
+	struct passwd* pw = getpwnam("SEC_OPERATOR");
 	umask(0);
 	fd_to_create = socket(AF_UNIX, SOCK_SEQPACKET, 0);
 	sockaddr_un addr{};
 	addr.sun_family = AF_UNIX;
     strncpy(addr.sun_path, SOCKET_PATH, sizeof(addr.sun_path) -1);
-	unlink(SOCKET_PATH);
+	if ( unlink(SOCKET_PATH) < 0)
+	{
+		cout << "No permission to run daemon!" << endl;
+		exit(-1);
+	}
 	bind(fd_to_create, (sockaddr*)&addr, sizeof(addr));
 	listen(fd_to_create, 10);
+	chown(SOCKET_PATH, pw->pw_uid, pw->pw_gid);
 }
 
 

@@ -163,24 +163,16 @@ void accept_client(int& listen_fd)
 
 int main()
 {
-
 	char cwd[64];
 	struct passwd* pass;
-	pass = getpwuid(getuid());
-	if (strcmp("SEC_OPERATOR", pass->pw_name))
-	{
-		printf("User must be SEC_OPERTOR!\n");
-		exit(-1);
-	}
 	read_setting_file();
-
-	remove(SOCKET_PATH);
 	chdir(working_directory);
 
 	struct sigaction act{};
 	act.sa_flags = SA_NOCLDWAIT;
 	sigaction(SIGCHLD, &act, NULL);
 
+	//sleep(30);
 	getcwd(cwd, sizeof(cwd));
 	cout << cwd << endl;
 	int listen_fd;
