@@ -1,6 +1,5 @@
 
 # pragma once
-#include "check.hpp"
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/socket.h>
@@ -11,9 +10,9 @@
 #include <dirent.h>
 #include "type_packet.h"
 #include "type_function.cpp"
-#include "common.h"
 #include <nlohmann/json.hpp>
 #include <libconfig.h>
+
 using json = nlohmann::json;
 using namespace std;
 
@@ -146,6 +145,67 @@ right_t get_right_from_acl(int my_uid, int owner, const char* filename)
 	return right_t::R_NONE;
 }
 
+void update_right_acl(const std::vector<line_right> list, const char path_to_acl[64])
+{
+	FILE* file = fopen(path_to_acl, "w+");
+	if (!file) {
+		cout << "Error open file: " << path_to_acl << endl;
+		return;
+	}
+	for (auto right_in_list: list)
+	{
+		fprintf(file, "%d %s %d\n", right_in_list.uid, right_in_list.filename, (int)(right_in_list.right));
+	}
+	fclose(file);
+}
+
+static void insert_right_acl(int owner, const char filename[64], int right, int receiver)
+{
+	char path_to_file[64];
+	int fd_acl;
+	struct stat st;
+	memset(path_to_file, 0, sizeof(path_to_file));
+	sprintf(path_to_file, "./acl/%d", owner);
+	struct line_right line;
+	std::vector<line_right> list_line;
+
+	stat(path_to_file, &st);
+	if (st.st_size > 0)   // check for acl-file non-empty
+	{
+		FILE* file = fopen(path_to_file, "r");
+		if (!file) {
+			cout << "Error open file: " << path_to_file << endl;
+			return;
+		}
+		while (!feof(file))
+		{
+			fscanf(file, "%d %s %d\n", &line.uid, line.filename, &line.right);
+			list_line.push_back(line);
+		}
+		fclose(file);
+	}
+
+	line_right ln;
+	ln.uid = receiver;
+	ln.right = right;
+	strcpy(ln.filename, filename); 
+
+	for (int i =0; i< list_line.size(); i++)
+	{
+		if (list_line[i].uid == ln.uid && !strcmp(list_line[i].filename, ln.filename))
+		{
+			list_line[i].right = ln.right;
+			update_right_acl(list_line, path_to_file);
+			return;
+		}
+	}
+	
+	list_line.push_back(ln);
+	update_right_acl(list_line, path_to_file);
+}
+
+
+
 res_analist analist_requets(const package_message& pkg, int& fd)
 {
 	int fd_test_exist;
@@ -183,6 +243,24 @@ res_analist analist_requets(const package_message& pkg, int& fd)
 			else
 				res.result_code = true;
 			break;
+		case REQ_GRANT:
+			res.right = pkg.right;
+			sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
+			fd_test_exist = open(res.path_to_file, O_RDONLY, 0x777);
+			if (fd_test_exist >= 0)
+			{
+				close(fd_test_exist);
+				res.right = pkg.right;
+				insert_right_acl(res.uid, pkg.filename, pkg.right, res.target_uid);
+				res.result_code = true;
+			}
+			else
+			{
+				res.right = R_NONE;
+				res.result_code = false;
+			}
+			break;
+
 	}
 	return res;
 }
@@ -384,3 +462,4 @@ std::vector<std::pair<string, bool>> sec_list_storage(int target_uid)
 }
 
 #pragma endregion
+

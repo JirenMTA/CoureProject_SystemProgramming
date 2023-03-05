@@ -80,6 +80,7 @@ void accept_client(int& listen_fd)
 		int result_delete;
 		char msg[32];
 		incoming_fd = accept(listen_fd, (sockaddr*)&incoming_address, &incoming_len);
+								
 		int id;
 		pid_t p = fork();
 		if (!p)
@@ -90,6 +91,8 @@ void accept_client(int& listen_fd)
 			while (true)
 			{
 				package_message msg;
+				vector<std::pair<string, bool>> res_list;
+				res_list.clear();
 				res = check(recv(incoming_fd, (void*)&msg, sizeof(msg), MSG_WAITALL));
 				check(res);
 				if (errno == ENOTCONN || res < sizeof(package_message))
@@ -123,17 +126,27 @@ void accept_client(int& listen_fd)
 					break;
 
 					case REQ_GET_STORAGE:
-						cout << "\nClient " << result_analist.uid << " send request get storage of user "
-						 << result_analist.target_uid << endl;
-						cout << "Found storage: ";
+						cout<< "\nClient " << result_analist.uid << " send request get storage of user "
+						 	<< result_analist.target_uid << endl;
+						cout<< "Found storage: ";
 						if (result_analist.result_code)
 							cout << "True" << endl;
 						else
 							cout << "False" << endl;
-						vector<std::pair<string, bool>> res_list;
 						res_list = list_dir(result_analist.path_to_file);
 						send_back_result_analist(result_analist, incoming_fd);
 						send_storage(incoming_fd, res_list);
+					break;
+
+					case REQ_GRANT:
+						cout<< "\nClient " << result_analist.uid << " send request to grant right " << result_analist.right << " to file" << result_analist.path_to_file 
+							<< " for client: " << result_analist.target_uid << endl;
+						cout<< "Granted? ";
+						if (result_analist.result_code)
+							cout << "True" << endl;
+						else
+							cout << "False" << endl;
+						send_back_result_analist(result_analist, incoming_fd);
 					break;
 			
 				}

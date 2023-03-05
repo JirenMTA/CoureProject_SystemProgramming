@@ -76,3 +76,21 @@ void task_try_get_storage()
 	res = sec_list_storage(owner);
 	out_put_list_dir(res);
 }
+
+void task_try_grant()
+{
+	char filename[32];
+	right_t r;
+	int recv;
+
+	cout << ">> Input filename: ";
+	cin >> filename;
+
+	cout << ">> Input receiver: ";
+	cin >> recv;
+
+	cout << ">> Input right: ";
+	cin >> r;
+	r = sec_grant(recv, filename, r);
+	cout << "Result right: " << r << endl;
+}

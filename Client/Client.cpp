@@ -14,7 +14,8 @@ int main()
 	sec_init();
 	while (true)
 	{
-		cout << "1. Read		2. Write	3. Get right	4. Get list file" << endl;
+		cout << "1. Read		2. Write	3. Get right	4. Get list file" << endl
+			 << "5. Grant	" << endl;
 		cin >> choice;
 		switch (choice)
 		{
@@ -29,6 +30,9 @@ int main()
 				break;
 			case 4:
 				task_try_get_storage();
+				break;
+			case 5:
+				task_try_grant();
 				break;
 		}
 	}
