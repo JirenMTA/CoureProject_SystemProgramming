@@ -74,5 +74,5 @@ void task_try_get_storage()
 	cout << ">> Input owner: ";
 	cin >> owner;
 	res = sec_list_storage(owner);
-    out_put_list_dir(res);
+	out_put_list_dir(res);
 }
