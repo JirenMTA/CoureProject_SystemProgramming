@@ -94,26 +94,49 @@ void accept_client(int& listen_fd)
 				check(res);
 				if (errno == ENOTCONN || res < sizeof(package_message))
 					break;
-				struct res_analist analist_req = analist_requets(msg, incoming_fd);
+				struct res_analist result_analist = analist_requets(msg, incoming_fd);
 
-				if (analist_req.req == REQ_OPEN)
+				switch (result_analist.req)
 				{
-					cout << "\n>> Client " << analist_req.uid << " send request to file " << analist_req.path_to_file << " of: " << analist_req.target_uid << endl;  
-					cout << ">> Got right: " << convert_right_to_string(analist_req.right) << endl;
-					if (analist_req.right >= 0)
-					{	
-						flag = get_flag_open_from_right(analist_req.right);
-						fd_to_send = open(analist_req.path_to_file, flag, analist_req.mode);
+					case REQ_OPEN:
+						cout << "\n>> Client " << result_analist.uid << " send request to file " << result_analist.path_to_file << " of: " << result_analist.target_uid << endl;  
+						cout << ">> Got right: " << convert_right_to_string(result_analist.right) << endl;
+						if (result_analist.right >= 0)
+						{	
+							flag = get_flag_open_from_right(result_analist.right);
+							fd_to_send = open(result_analist.path_to_file, flag, result_analist.mode);
 
-						cout << "fd = " << fd_to_send << endl;
-						if (fd_to_send < 0)
-							analist_req.result_code = false;
+							cout << "fd = " << fd_to_send << endl;
+							if (fd_to_send < 0)
+								result_analist.result_code = false;
+							else
+								result_analist.result_code = true;
+							send_back_result_analist(result_analist, incoming_fd);
+							send_descript(incoming_fd, fd_to_send);
+						}
+					break;
+
+					case REQ_GET_RIGHTS:
+						cout << "\n>> Client " << result_analist.uid << " send request check to file " << result_analist.path_to_file << " of: " << result_analist.target_uid << endl;  
+						cout << ">> Got right: " << convert_right_to_string(result_analist.right) << endl;
+						send_back_result_analist(result_analist, incoming_fd);
+					break;
+
+					case REQ_GET_STORAGE:
+						cout << "\nClient " << result_analist.uid << " send request get storage of user "
+						 << result_analist.target_uid << endl;
+						cout << "Found storage: ";
+						if (result_analist.result_code)
+							cout << "True" << endl;
 						else
-							analist_req.result_code = true;
-						send_back_result_analist(analist_req, incoming_fd);
-						send_descript(incoming_fd, fd_to_send);
-					}
-				}	
+							cout << "False" << endl;
+						vector<std::pair<string, bool>> res_list;
+						res_list = list_dir(result_analist.path_to_file);
+						send_back_result_analist(result_analist, incoming_fd);
+						send_storage(incoming_fd, res_list);
+					break;
+			
+				}
 			}
 			cout << "Client " << id << " disconnected!" << endl;
 		}

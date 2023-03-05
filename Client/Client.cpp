@@ -4,21 +4,35 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include "../Include/common.h"
+#include "TestLib.cpp"
 using namespace std;
-
 
 int main()
 {
-	char data[32];
-	sec_init();
-	int fd;
+	int choice;
 	
-	fd = sec_openat(1002, "test1", 0x777);
-	read(fd, data, sizeof(data));
-	cout << "Got data of file: " << data << endl;
-
+	sec_init();
+	while (true)
+	{
+		cout << "1. Read		2. Write	3. Get right	4. Get list file" << endl;
+		cin >> choice;
+		switch (choice)
+		{
+			case 1:
+				task_try_read();
+				break;
+			case 2:
+				task_try_write();
+				break;
+			case 3: 
+				task_get_right();
+				break;
+			case 4:
+				task_try_get_storage();
+				break;
+		}
+	}
 	return 0;
-
 }
 
 
