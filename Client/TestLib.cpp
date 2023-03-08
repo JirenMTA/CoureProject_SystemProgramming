@@ -1,8 +1,7 @@
 #pragma once
 #include <iostream>
-#include "../Include/type_function.cpp"
-#include "../Include/common.h"
-
+#include <MyLib/common.h>
+#include <MyLib/functions_of_types.h>
 using namespace std;
 void task_try_read()
 {

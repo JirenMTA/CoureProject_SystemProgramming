@@ -10,23 +10,14 @@
 #include <cstring>
 #include <signal.h>
 #include <pwd.h>
-#include "../Include/common.h"
-#include "../Include/type_function.cpp"
+#include <MyLib/common.h>
+#include <MyLib/functions_of_types.h>
+#include <MyLib/check.hpp>
 using namespace std;
 
 
-#define KNRM  "\x1B[0m"
-#define KRED  "\x1B[31m"
-#define KGRN  "\x1B[32m"
-#define KYEL  "\x1B[33m"
-#define KBLU  "\x1B[34m"
-#define KMAG  "\x1B[35m"
-#define KCYN  "\x1B[36m"
-#define KWHT  "\x1B[37m"
-
 
 /*
-
 sudo useradd -m -G adm,cdrom,sudo -s /bin/bash SEC_OPERATOR
 id -u <username>
 tail -n 10 /var/log/syslog      // to read log-file (message from daemon) (10 last row in file)
@@ -37,7 +28,6 @@ cp <Program> /usr/local/bin/
 cpp.sh <cpp shell>
 list user: /etc/shadow
 */
-
 
 static void skeleton_daemon()
 {
@@ -152,6 +142,7 @@ void accept_client(int& listen_fd)
 				}
 			}
 			cout << "Client " << id << " disconnected!" << endl;
+			exit(0);
 		}
 	}
 }

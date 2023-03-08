@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/local/vcpkg/installed/x64-linux/include"
+                "/usr/local/vcpkg/installed/x64-linux/include",
+                "/usr/local/include/MyLib"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

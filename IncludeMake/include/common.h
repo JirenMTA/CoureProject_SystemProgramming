@@ -1,12 +1,17 @@
-#pragma once
+#ifndef MYLIB_H
+#define MYLIB_H
 #include "type_packet.h"
 #include <vector>
 #include <string>
 #include <nlohmann/json.hpp>
-#include "check.hpp"
-#include "common.cpp"
+using namespace std;
 
 
+
+extern const char* SOCKET_PATH;
+extern const char* working_directory;
+ 
+extern int fd_connect_to_daemon;
 
 int read_setting_file();
 void create_socket(int& fd_to_create);
@@ -22,8 +27,6 @@ right_t get_right_from_acl(int my_uid, int owner, const char* filename);
 void update_right_acl(const std::vector<line_right> list, const char path_to_acl[64]);
 void insert_right_acl(int owner, const char filename[64], int right, int receiver);
 res_analist analist_requets(const package_message& pkg, int& fd);
-
-
 
 #pragma region REQUEST_OPEN_DESCRIPTOR
 void receive_descript(int& fd_received);
@@ -48,3 +51,4 @@ int receive_storage(int& fd, std::vector<std::pair<string, bool>>& storage);
 #pragma region REQUEST_GRANT
 right_t sec_grant(int uid, const char* filename, right_t right);
 #pragma endregion
+#endif // MYLIB_H
