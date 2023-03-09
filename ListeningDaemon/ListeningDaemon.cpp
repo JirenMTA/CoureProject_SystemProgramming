@@ -1,21 +1,13 @@
-#include <iostream>
-#include <unistd.h>
-#include <fcntl.h>
 #include <sys/socket.h>
-#include <sys/un.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <syslog.h>
-#include <cstring>
 #include <signal.h>
 #include <pwd.h>
+#include <sys/stat.h>
+#include <sys/un.h>
 #include <MyLib/common.h>
 #include <MyLib/functions_of_types.h>
 #include <MyLib/check.hpp>
 using namespace std;
-
-
 
 /*
 sudo useradd -m -G adm,cdrom,sudo -s /bin/bash SEC_OPERATOR
@@ -28,6 +20,8 @@ cp <Program> /usr/local/bin/
 cpp.sh <cpp shell>
 list user: /etc/shadow
 */
+std::vector <int> connected_users;
+
 
 static void skeleton_daemon()
 {
@@ -61,6 +55,7 @@ void accept_client(int& listen_fd)
 	char buff[32];
 	int flag = 1;
 	int res, fd_to_send, incoming_fd;
+	connected_users.clear();
 	syslog(LOG_NOTICE, "Started listening");
 	while (true)
 	{	
@@ -69,13 +64,23 @@ void accept_client(int& listen_fd)
 		string str_right;
 		int result_delete;
 		char msg[32];
+		//int id_connected;
+		//get_uid_from_socket(incoming_fd);
 		incoming_fd = accept(listen_fd, (sockaddr*)&incoming_address, &incoming_len);
-								
-		int id;
+		//id_connected = get_uid_from_socket(incoming_fd);
+		// if (std::find(connected_users.begin(), connected_users.end(), id_connected) != connected_users.end())
+		// {
+		// 	shutdown(incoming_fd, SHUT_RDWR);
+		// 	continue;
+		// 	break;
+		// }
+		//connected_users.push_back(id_connected);		
+
+		
 		pid_t p = fork();
 		if (!p)
 		{
-			id = get_uid_from_socket(incoming_fd);
+			int id = get_uid_from_socket(incoming_fd);
 			cout << KMAG <<"Client " << id << " connected!" << KNRM << endl;
 			add_new_user_in_storage(id);
 			while (true)

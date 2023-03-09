@@ -53,7 +53,7 @@ void create_socket(int& fd_to_create)
 	fd_to_create = socket(AF_UNIX, SOCK_SEQPACKET, 0);
 	sockaddr_un addr{};
 	addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, SOCKET_PATH, sizeof(addr.sun_path) -1);
+    strncpy(addr.sun_path, SOCKET_PATH, sizeof(addr.sun_path));
 	unlink(SOCKET_PATH);
 	if (open(SOCKET_PATH , O_RDONLY, 0777) > 0)
 	{

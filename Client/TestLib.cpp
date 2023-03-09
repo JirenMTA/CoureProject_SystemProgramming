@@ -2,6 +2,7 @@
 #include <iostream>
 #include <MyLib/common.h>
 #include <MyLib/functions_of_types.h>
+
 using namespace std;
 void task_try_read()
 {
@@ -92,4 +93,14 @@ void task_try_grant()
 	cin >> r;
 	r = sec_grant(recv, filename, r);
 	cout << "Result right: " << r << endl;
+}
+
+void task_try_list_storage()
+{
+	int owner;
+	std::vector<std::pair<string, bool>> res_list;
+	cout << ">> Input receiver: ";
+	cin >> owner;
+	res_list = sec_list_storage(owner);
+	cout << res_list;
 }

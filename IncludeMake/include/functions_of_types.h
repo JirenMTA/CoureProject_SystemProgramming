@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "type_packet.h"
+#include <vector>
 using namespace std;
 
 
@@ -17,6 +18,9 @@ string convert_right_to_string(const right_t& r);
 std::istream& operator>>(std::istream& is, right_t& r);
 
 std::ostream& operator<<(std::ostream& os, const right_t& r);
+
+std::ostream& operator<<(std::ostream& os, const std::vector<std::pair<string, bool>> list_storage);
+
 
 int get_flag_open_from_right(right_t r);
 

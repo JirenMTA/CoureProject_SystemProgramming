@@ -90,3 +90,24 @@ int get_flag_open_from_right(right_t r)
 		return O_WRONLY;
 	return -1; 
 }
+
+std::ostream& operator<<(std::ostream& os, const std::vector<std::pair<string, bool>> list_storage)
+{
+	if (!list_storage.size())
+	{
+		os << "Current dir empty!" << endl;
+		return os;
+ 	}
+	int index_file = 0;
+	for (auto file: list_storage)
+	{
+		if (file.second)
+			os << KBLU << "[DIR] " << file.first << KNRM << endl;
+		else
+		{
+			os << KGRN << "[" << index_file << "] " << file.first << KNRM << endl;
+			index_file++;
+		}
+	}
+	return os;
+}

@@ -14,7 +14,7 @@ int main()
 	while (true)
 	{
 		cout << "1. Read		2. Write	3. Get right	4. Get list file" << endl
-			 << "5. Grant	" << endl;
+			 << "5. Grant	6. List storage" << endl;
 		cin >> choice;
 		switch (choice)
 		{
@@ -32,6 +32,9 @@ int main()
 				break;
 			case 5:
 				task_try_grant();
+				break;
+			case 6: 
+				task_try_list_storage();
 				break;
 		}
 	}
