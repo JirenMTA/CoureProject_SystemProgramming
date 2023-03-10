@@ -64,18 +64,7 @@ void accept_client(int& listen_fd)
 		string str_right;
 		int result_delete;
 		char msg[32];
-		//int id_connected;
-		//get_uid_from_socket(incoming_fd);
 		incoming_fd = accept(listen_fd, (sockaddr*)&incoming_address, &incoming_len);
-		//id_connected = get_uid_from_socket(incoming_fd);
-		// if (std::find(connected_users.begin(), connected_users.end(), id_connected) != connected_users.end())
-		// {
-		// 	shutdown(incoming_fd, SHUT_RDWR);
-		// 	continue;
-		// 	break;
-		// }
-		//connected_users.push_back(id_connected);		
-
 		
 		pid_t p = fork();
 		if (!p)
@@ -101,18 +90,24 @@ void accept_client(int& listen_fd)
 						cout << ">> Got right: " << convert_right_to_string(result_analist.right) << endl;
 						if (result_analist.right >= 0)
 						{	
-							flag = get_flag_open_from_right(result_analist.right);
-							fd_to_send = open(result_analist.path_to_file, flag, result_analist.mode);
-
-							cout << "fd = " << fd_to_send << endl;
-							if (fd_to_send < 0)
-								result_analist.result_code = false;
+							if (result_analist.uid == result_analist.target_uid)
+							{
+								fd_to_send = open(result_analist.path_to_file, O_RDWR|O_CREAT, result_analist.mode);
+							}
 							else
-								result_analist.result_code = true;
-							send_back_result_analist(result_analist, incoming_fd);
-							send_descript(incoming_fd, fd_to_send);
+							{
+								flag = get_flag_open_from_right(result_analist.right);
+								fd_to_send = open(result_analist.path_to_file, flag, result_analist.mode);
+							}
 						}
-					break;
+						cout << "fd = " << fd_to_send << endl;
+						if (fd_to_send < 0)
+							result_analist.result_code = false;
+						else
+							result_analist.result_code = true;
+						send_back_result_analist(result_analist, incoming_fd);
+						send_descript(incoming_fd, fd_to_send);
+						break;
 
 					case REQ_GET_RIGHTS:
 						cout << "\n>> Client " << result_analist.uid << " send request check to file " << result_analist.path_to_file << " of: " << result_analist.target_uid << endl;  

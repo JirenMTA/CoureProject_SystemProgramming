@@ -102,12 +102,13 @@ std::ostream& operator<<(std::ostream& os, const std::vector<std::pair<string, b
 	for (auto file: list_storage)
 	{
 		if (file.second)
-			os << KBLU << "[DIR] " << file.first << KNRM << endl;
+			os << "[DIR] " << file.first << endl;
 		else
 		{
-			os << KGRN << "[" << index_file << "] " << file.first << KNRM << endl;
+			os << "[" << index_file << "] " << file.first << endl;
 			index_file++;
 		}
 	}
 	return os;
 }
+

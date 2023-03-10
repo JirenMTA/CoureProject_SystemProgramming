@@ -13,7 +13,7 @@ void task_try_read()
 	cin >> filename;
 	cout << ">> Input owner: ";
 	cin >> target_uid;
-	int fd_received = sec_openat(target_uid, filename, 0x777);
+	int fd_received = sec_openat(target_uid, filename, 0777);
 	if (fd_received > 0)
 	{
 		if (read(fd_received, buff, 64) >= 0) 
@@ -40,7 +40,7 @@ void task_try_write()
 	cout << ">> Input owner: ";
 	cin >> owner;
 	cin.get();
-	int fd_received = sec_openat(owner, filename, 0x777);
+	int fd_received = sec_openat(owner, filename, 0777);
 	if (fd_received > 0)
 	{
 		cout << "Enter new data: ";

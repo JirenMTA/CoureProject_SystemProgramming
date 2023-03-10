@@ -146,10 +146,11 @@ right_t get_right_from_acl(int my_uid, int owner, const char* filename)
 		if (my_uid == line.uid && !strcmp(filename, line.filename))
 		{
 			fclose(file);
-			return (right_t)line.right;
+			return static_cast<right_t>(line.right);
 		}
 	}
 	fclose(file);
+
 	return right_t::R_NONE;
 }
 
@@ -451,7 +452,6 @@ int receive_storage(int& fd, std::vector<std::pair<string, bool>>& storage)
 	return 0;
 }
 
-
 std::vector<std::pair<string, bool>> sec_list_storage(int target_uid)
 {
 	struct package_message pkg{};
@@ -460,7 +460,7 @@ std::vector<std::pair<string, bool>> sec_list_storage(int target_uid)
 	storage.clear();
 	pkg.req = REQ_GET_STORAGE;
 	pkg.target_id = target_uid;
-	pkg.right = R_ALL;
+	pkg.right = right_t::R_ALL;
 	send_request(fd_connect_to_daemon, pkg);
 	receive_back_result_analist(res, fd_connect_to_daemon);
 	if (!res.result_code)
@@ -471,15 +471,13 @@ std::vector<std::pair<string, bool>> sec_list_storage(int target_uid)
 
 #pragma endregion
 
-
 right_t sec_grant(int uid, const char* filename, right_t right)
 {
 	package_message message{};
 	strcpy(message.filename,filename);
 	message.target_id = uid;
-	message.right = right;
+	message.right = static_cast<right_t>(right);
 	message.req = REQ_GRANT;
-	message.mode = 0x777;
 	send_request(fd_connect_to_daemon, message);
 
 	struct res_analist res{};
