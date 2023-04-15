@@ -1,7 +1,7 @@
 <img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="100">
 
 <img src="https://media2.giphy.com/media/ZEUODEtQiUZWGg6IHR/giphy.gif" width="100">
-<img src="https://camo.githubusercontent.com/925335f5b40966a0c6e062f6e7611e642b1f4753de182f1d8a166bfae6f6e621/68747470733a2f2f692e67697068792e636f6d2f6d656469612f6a4e4e557351614178306d795741587731682f67697068792e77656270" width="100">
+<img src="https://i.giphy.com/media/jNNUsQaAx0myWAXw1h/giphy.webp" width="100">
 
 # Course project system programming
 
