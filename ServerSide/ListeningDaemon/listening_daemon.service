@@ -1,0 +1,11 @@
+[Unit]
+Description=SecurityStorageDaemon
+
+[Service]
+Type=forking
+RuntimeDirectory=sec_storage
+
+User=SEC_OPERATOR
+Group=SEC_OPERATOR
+
+ExecStart=/tmp/ListeningDaemon
