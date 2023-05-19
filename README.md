@@ -34,7 +34,7 @@ sudo useradd -m -G adm,sdrom,sudo -s /bin/bash SEC_OPERATOR
 ```
 #### 2. Run server by user ```SEC_OPERATOR```
 ```
-sudo cp /ListeingDaemon /usr/local/bin
+sudo cp ListeingDaemon /usr/local/bin
 sudo systemctl start listening_daemon.service
 ```
 #### 3. Enable daemon-server auto running after restart 
