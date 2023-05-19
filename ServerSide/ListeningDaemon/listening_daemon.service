@@ -3,9 +3,11 @@ Description=SecurityStorageDaemon
 
 [Service]
 Type=forking
-RuntimeDirectory=sec_storage
-
+RuntimeDirectory=/home/SEC_OPERATOR
 User=SEC_OPERATOR
 Group=SEC_OPERATOR
+ExecStart=/usr/local/bin/ListeningDaemon
 
-ExecStart=/tmp/ListeningDaemon
+[Install]
+WantedBy=multi-user.target
+

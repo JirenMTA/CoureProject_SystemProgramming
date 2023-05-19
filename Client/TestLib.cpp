@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <StorageLib/sec_library.h>
-
+#include <cstring>
 
 using namespace std;
 void task_try_read()

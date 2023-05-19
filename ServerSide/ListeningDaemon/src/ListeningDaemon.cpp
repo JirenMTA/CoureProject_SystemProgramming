@@ -140,14 +140,18 @@ void accept_client(int &listen_fd)
 					msg_log << "Client " << result_analist.uid << " send request get storage of user " << result_analist.target_uid << endl;
 					syslog(LOG_NOTICE, "%s", msg_log.str().c_str());
 					msg_log.str("");
-					msg_log << "Found storage: ";
-					if (result_analist.result_code)
-						msg_log << "True" << endl;
-					else
-						msg_log << "False" << endl;
+					// msg_log << "Found storage: ";
+					// if (result_analist.result_code)
+					// 	msg_log << "True" << endl;
+					// else
+					// 	msg_log << "False" << endl;
 					syslog(LOG_NOTICE, "%s", msg_log.str().c_str());	
 					msg_log.str("");
-						
+					cout << "Found storage? " << endl;
+					if (result_analist.result_code)
+						cout << "True" << endl;
+					else
+						cout << "False" << endl;
 					res_list = list_dir(result_analist.path_to_file);
 					send_back_result_analist(result_analist, incoming_fd);
 					send_storage(incoming_fd, res_list);

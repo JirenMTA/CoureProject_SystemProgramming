@@ -1,18 +1,7 @@
 #ifndef SEC_LIBRARY
 #define SEC_LIBRARY
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <vector>
-#include <sys/stat.h>
 #include <iostream>
-#include <string>
-#include <dirent.h>
-#include <libconfig.h>
-#include <pwd.h>
 #include <vector>
-#include <string>
 #include <check.hpp>
 #include <type_packet.h>
 using namespace std;

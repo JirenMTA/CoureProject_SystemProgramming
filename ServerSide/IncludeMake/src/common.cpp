@@ -1,6 +1,19 @@
 #include "check.hpp"
 #include "type_packet.h"
 #include "common.h"
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <vector>
+#include <sys/stat.h>
+#include <iostream>
+#include <string>
+#include <dirent.h>
+#include <nlohmann/json.hpp>
+#include <libconfig.h>
+#include <pwd.h>
+#include <cstring>
 using json = nlohmann::json;
 using namespace std;
 

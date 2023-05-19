@@ -2,6 +2,22 @@
 #include "type_packet.h"
 #include "common.h"
 #include "functions_of_types.h"
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <vector>
+#include <sys/stat.h>
+#include <iostream>
+#include <string>
+#include <dirent.h>
+#include <nlohmann/json.hpp>
+#include <libconfig.h>
+#include <pwd.h>
+#include <cstring>
+using json = nlohmann::json;
+using namespace std;
+
 
 int fd_connect_to_daemon;
 
@@ -190,8 +206,6 @@ std::vector<std::pair<string, bool>> sec_list_storage(int target_uid)
 	pkg.right = right_t::R_ALL;
 	send_request(fd_connect_to_daemon, pkg);
 	receive_back_result_analist(res, fd_connect_to_daemon);
-	if (!res.result_code)
-		return storage;
 	receive_storage(fd_connect_to_daemon, storage);
 	return storage;
 }
