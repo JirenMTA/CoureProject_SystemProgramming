@@ -1,56 +1,55 @@
 #!/bin/bash
+
 application_path=$(pwd)
+
 home_path=($HOME)
 
 echo "application path - $application_path"
 echo "home path - $home_path"
+sudo apt install cmake
+sudo apt-get install curl zip unzip tar
 
+echo "application path - $application_path"
+echo "home path - $home_path"
 mkdir dependency
 cd  dependency
-
 # Dependency installation
 echo "Started downloading additional files"
 git clone https://github.com/Microsoft/vcpkg
-./vcpkg/bootstrap-vcpkg.bat
+cd vcpkg
+./bootstrap-vcpkg.sh
 ./vcpkg install nlohmann-json
 sudo apt-get install libconfig-dev
-
 echo "Finished downloading additional files"
-
 # Modifying CMakeLists.txt
 cd $application_path
-sed -i "s|usr/local|$application_path|g" "$application_path/ServerSide/IncludeMake/CMakeLists.txt" 
-sed -i "s|usr/local|$application_path|g" "$application_path/ServerSide/ListeningDaemon/CMakeLists.txt" 
-sed -i "s|usr/local|$application_path|g" "$application_path/Client/CMakeLists.txt"
-
+sed -i "s|/usr/local|$application_path/dependency|g" "$application_path/ServerSide/IncludeMake/CMakeLists.txt" 
+sed -i "s|/usr/local|$application_path/dependency|g" "$application_path/ServerSide/ListeningDaemon/CMakeLists.txt" 
+sed -i "s|/usr/local|$application_path/dependency|g" "$application_path/Client/CMakeLists.txt"
 # Moving dependencies
 cd $application_path
 sudo mv config.cfg /usr/local/bin
-sudo mv /ServerSide/ListeningDaemon/listening_daemon.service /etc/systemd/system
-
-# Genereation cmake
-mkdir /ServerSide/IncludeMake/build
-cd /ServerSide/IncludeMake/build
+sudo mv ./ServerSide/ListeningDaemon/listening_daemon.service /etc/systemd/system
+mkdir ./ServerSide/IncludeMake/build
+cd ./ServerSide/IncludeMake/build
 cmake ..
 sudo make install 
-
 cd $application_path
-mkdir /ServerSide/ListeningDaemon/build
-cd /ServerSide/ListeningDaemon/build
+mkdir ./ServerSide/ListeningDaemon/build
+cd ./ServerSide/ListeningDaemon/build
 cmake ..
 make
-
 cd $application_path
-mkdir /Client/build
-cd /Client/build
+mkdir ./Client/build
+cd ./Client/build
 cmake ..
 make
 
 # Moving daemon.exe
-cd /ServerSide/ListeningDaemon/build
-sudo mv ListeningDaemon /usr/local/bin
 
-# Run
-sudo useradd -m -G adm,sdrom,sudo -s /bin/bash SEC_OPERATOR
-su SEC_OPERATOR
+cd $application_path
+
+cd ./ServerSide/ListeningDaemon/build
+sudo mv ListeningDaemon /usr/local/bin
+sudo useradd -m -G adm,sudo -s /bin/bash SEC_OPERATOR
 sudo systemctl start listening_daemon.service
