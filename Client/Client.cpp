@@ -1,9 +1,6 @@
 #include <iostream>
-#include <sys/stat.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <unistd.h>
 #include "TestLib.cpp"
+
 using namespace std;
 
 int main()
@@ -15,6 +12,8 @@ int main()
 	{
 		cout << "1. Read		2. Write	3. Get right	4. Get list file" << endl
 			 << "5. Grant	6. Rewoke	7. Delete" << endl;
+        std::cout << "Test ability\n8. Get info about file      9. Ban user"
+                     "      10. passwd file     11. assign owner" << std::endl;
 		cin >> choice;
 		switch (choice)
 		{
@@ -38,8 +37,20 @@ int main()
 				break;	
 			case 7:
 				task_try_delete();
-				break;		
-		}
+				break;
+            case 8:
+                task_try_get_info();
+                break;
+            case 9:
+                task_try_ban_user();
+                break;
+            case 10:
+                task_passwd_by_file();
+                break;
+            case 11:
+                task_assign_owner();
+                break;
+        }
 	}
 	return 0;
 }

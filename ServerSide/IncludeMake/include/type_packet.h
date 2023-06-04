@@ -11,6 +11,7 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
+// TODO add REQ_ASSIGN_OWNER, REQ_GET_ALL_BAN_USER, REQ_GET_FILE_INFO, REQ_BAN_USERS,
 enum TYPE
 {
 	REQ_OPEN,
@@ -20,7 +21,8 @@ enum TYPE
 	REQ_GRANT,
 	REQ_REVOKE,
     REQ_CREATE,
-	REQ_GET_STORAGE
+    REQ_GET_STORAGE,
+    REQ_BAN_USER,
 }; 
 
 enum right_t
@@ -42,6 +44,7 @@ struct request
 	char filename[32] = {'\0'};	
 	mode_t mode;
 	right_t right;
+
 };
 
 struct response
@@ -60,6 +63,27 @@ struct line_right{
 	char filename[32] ={'\0'};
 	int right;
 };
+
+
+
+// daria
+
+struct file_info {
+    char filename[32] = {'\0'};
+    int uid_owner;
+    int* uid_users;
+    int* uid_ban_users;
+    char passwd[32] = {'\0'};
+};
+
+struct ban_users {
+    char filename[32] = {'\0'};
+    int uid_user;
+};
+
+// end daria
+
+
 
 #endif // TYPE_PACKET_H
 

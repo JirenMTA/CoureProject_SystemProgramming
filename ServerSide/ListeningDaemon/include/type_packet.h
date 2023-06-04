@@ -22,7 +22,8 @@ enum TYPE
 	REQ_GRANT,
 	REQ_REVOKE,
     REQ_CREATE,
-	REQ_GET_STORAGE
+	REQ_GET_STORAGE,
+    REQ_BAN_USER
 }; 
 
 enum right_t

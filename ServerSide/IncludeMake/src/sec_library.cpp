@@ -15,6 +15,7 @@
 #include <libconfig.h>
 #include <pwd.h>
 #include <cstring>
+
 using json = nlohmann::json;
 using namespace std;
 
@@ -215,7 +216,7 @@ std::vector<std::pair<string, bool>> sec_list_storage(int target_uid)
 #pragma region REQUEST_GRANT
 right_t sec_grant(int uid, const char* filename, right_t right)
 {
-	request message{};
+	struct request message{};
 	strcpy(message.filename,filename);
 	message.target_id = uid;
 	message.right = static_cast<right_t>(right);
@@ -230,8 +231,8 @@ right_t sec_grant(int uid, const char* filename, right_t right)
 #pragma region REQUEST_REWOKE
 right_t sec_revoke(int uid, const char* filename, right_t right)
 {
-	request message{};
-	response res{};
+    struct request message{};
+    struct response res{};
 	strcpy(message.filename,filename);
 	message.target_id = uid;
 	message.right = right;
@@ -246,7 +247,7 @@ right_t sec_revoke(int uid, const char* filename, right_t right)
 #pragma region REQUEST_DELETE
 int sec_unlink_at(int target_uid, const char* filename)
 {
-	struct  request pkg{};
+	struct request pkg{};
 	struct response res{};
 	strcpy(pkg.filename, filename);
 	pkg.target_id = target_uid;
@@ -257,4 +258,49 @@ int sec_unlink_at(int target_uid, const char* filename)
 		return 0;
 	return -1;
 }
+
 #pragma andregion
+
+
+// daria
+
+#pragma region REQUEST_GET_INFO
+int sec_get_info(const char* filename) {
+    return 0;
+}
+#pragma endregion
+
+#pragma region REQUEST_PASSWD_BY_FILE
+int sec_passwd_by_file(int uid, const char* filename) {
+    return 0;
+}
+#pragma endregion
+
+#pragma region REQUEST_BAN_USER
+int sec_ban_user(int uid, const char* filename) {
+    struct request pkg{};
+    struct response res{};
+    strcpy(pkg.filename, filename);
+    pkg.target_id = uid;
+    pkg.req = REQ_BAN_USER;
+    send_request(fd_connect_to_daemon, pkg);
+    receive_back_result_analist(res, fd_connect_to_daemon);
+    if(res.result_code)
+        return 0;
+    return -1;
+}
+#pragma endregion
+
+#pragma region REQUEST_ASSIGN_OWNER
+int sec_assign_owner(int uid, const char* filename) {
+    return 0;
+}
+#pragma endregion
+
+#pragma region REQUEST_GET_OWNER
+int sec_get_owner(int uid, const char* filename) {
+    return 0;
+}
+#pragma endregion
+
+// end daria

@@ -4,6 +4,7 @@
 #include <vector>
 #include <check.hpp>
 #include <type_packet.h>
+
 using namespace std;
 
 extern int fd_connect_to_daemon;
@@ -36,6 +37,30 @@ right_t sec_grant(int uid, const char* filename, right_t right);
 #pragma region REQUEST_REWOKE
 right_t sec_revoke(int uid, const char* filename, right_t right);
 #pragma endregion
+
+// daria
+
+#pragma region REQUEST_GET_INFO
+int sec_get_info(const char* filename);
+#pragma endregion
+
+#pragma region REQUEST_PASSWD_BY_FILE
+int sec_passwd_by_file(int uid, const char* filename);
+#pragma endregion
+
+#pragma region REQUEST_BAN_USER
+int sec_ban_user(int uid, const char* filename);
+#pragma endregion
+
+#pragma region REQUEST_ASSIGN_OWNER
+int sec_assign_owner(int uid, const char* filename);
+#pragma endregion
+
+#pragma region REQUEST_GET_OWNER
+int sec_get_owner(int uid, const char* filename);
+#pragma endregion
+
+// end daria
 
 #pragma region REQUEST_DELETE
 int sec_unlink_at(int target_uid, const char* filename);

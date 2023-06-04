@@ -81,22 +81,22 @@ void task_get_right()
 	r = sec_check(get_uid(owner), filename.c_str(), R_NONE);
 	cout << "You have right: " << r << endl;
 }
-
 void task_try_grant()
 {
-    std::string filename;
-    std::string owner;
+    char filename[32];
     right_t r;
+    int recv;
 
-    std::cout << ">> Input filename: ";
-    std::cin >> filename;
-    std::cout << ">> Input receiver: ";
-    std::cin >> owner;
-    std::cout << ">> Input right: ";
-    std::cin >> r;
+    cout << ">> Input filename: ";
+    cin >> filename;
 
-	r = sec_grant(get_uid(owner), filename.c_str(), r);
-	cout << "Result right: " << r << endl;
+    cout << ">> Input receiver: ";
+    cin >> recv;
+
+    cout << ">> Input right: ";
+    cin >> r;
+    r = sec_grant(recv, filename, r);
+    cout << "Result right: " << r << endl;
 }
 void task_try_list_storage()
 {
@@ -107,7 +107,6 @@ void task_try_list_storage()
 	res_list = sec_list_storage(get_uid(owner));
 	cout << res_list;
 }
-
 void task_try_revoke()
 {
     std::string filename;
@@ -125,7 +124,6 @@ void task_try_revoke()
 
 	r = sec_revoke(get_uid(owner), filename.c_str(), r);
 }
-
 void task_try_delete()
 {
     std::string filename;
@@ -141,7 +139,39 @@ void task_try_delete()
     cout << "Result delete: " << res_delete << endl;
 }
 
+#pragma region daria
 
+void task_try_get_info() {
+    std::string filename;
+
+    std::cout << "Input filename";
+    std::cin >> filename;
+    std::cout << "get info about file" << std::endl;
+
+}
+void task_try_ban_user() {
+    std::string filename;
+    std::string owner;
+
+    std::cout << ">> Input file name: ";
+    std::cin >> filename;
+    std::cout << ">> Input ban: ";
+    std::cin >> owner;
+
+    int res = sec_ban_user(get_uid(owner), filename.c_str());
+
+    cout << "Result: " << res << endl;
+
+}
+void task_passwd_by_file() {
+    std::cout << "task_passwd_by_file" << std::endl;
+
+}
+void task_assign_owner() {
+    std::cout << "task_assign_owner" << std::endl;
+}
+
+#pragma endregion daria
 
 
 
