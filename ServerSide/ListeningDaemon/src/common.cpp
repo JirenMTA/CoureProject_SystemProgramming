@@ -18,6 +18,7 @@
 #include <fstream>
 
 
+
 using json = nlohmann::json;
 using namespace std;
 
@@ -131,18 +132,15 @@ void add_new_user_in_storage(int uid)
 	mkdir("./acl", 0777);
 	open(user_acl, O_CREAT, 0777);
 }
-
 bool check_exits_file_in_user(char* relative_path)
 {
 	struct stat sb;
     return stat(relative_path, &sb) == 0 ? true : false;
 }
-
 void send_back_result_analist(response& res, int& fd)
 {
 	check(send(fd, (const void*)&res, sizeof(response), MSG_WAITALL));
 }
-
 void receive_back_result_analist(response& res, int& fd)
 {
 	check(recv(fd, (void*)&res, sizeof(response), MSG_WAITALL));
@@ -278,30 +276,135 @@ std::vector<std::pair<string, bool>> list_dir(const char* current_dir)
 	return result_static_list_dir;
 }
 
-void ban_user_by_uid(int uid, const char* filename) {
-    const char path_to_ban_users[] = "/home/SEC_OPERATOR/ban_user.txt";
+bool passwd_exist(const int uid, const char* filename){
+    std::string line;
+    char path_to_info_file[64];
+    sprintf(path_to_info_file, "/home/SEC_OPERATOR/%d/__info.txt", uid);
+    char pass_file[64];
+    sprintf(pass_file, "%s", filename);
 
-    char name[64];
-    sprintf(name, "%d %s", uid, filename);
-
-    ofstream fileOUT(path_to_ban_users, ios::app); // open filename.txt in append mode
-    fileOUT << name << endl;
-    fileOUT.close();
+    std::ifstream in2(path_to_info_file);
+    if (in2.is_open())
+    {
+        while (std::getline(in2, line))
+        {
+            if (line.find(pass_file) == 0) {
+                in2.close();
+                return true;
+            }
+        }
+    }
+    in2.close();
+    return false;
 }
-
-void set_passwd(const int uid, const char* filename, const char* passwd){
-
+bool set_passwd(const int uid, const char* filename, const char* passwd){
     char path_to_info_file[64];
     sprintf(path_to_info_file, "/home/SEC_OPERATOR/%d/__info.txt", uid);
 
     char data[128];
     sprintf(data, "%s %s", filename, passwd);
 
+    if(passwd_exist(uid, filename)){
+        std::string line;
+
+        std::ifstream in2(path_to_info_file);
+
+        if (in2.is_open())
+        {
+            while (std::getline(in2, line))
+            {
+                if (line.find(filename) == 0) {
+                    line = std::string(data);
+                    in2.close();
+                    return true;
+                }
+            }
+        }
+    }
+
     ofstream fileOUT(path_to_info_file, ios::app);
     fileOUT << data << endl;
     fileOUT.close();
+    return true;
+}
+bool correct_passwd(const int uid, const char* filename, const char* passwd){
+    char path_to_info_file[64];
+    sprintf(path_to_info_file, "/home/SEC_OPERATOR/%d/__info.txt", uid);
+    char data[128];
+    sprintf(data, "%s %s", filename, passwd);
+
+    std::string line;
+    std::ifstream in2(path_to_info_file);
+
+    if (in2.is_open())
+    {
+        while (std::getline(in2, line))
+        {
+            if (line == data) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+bool user_exist_in_ban_list(int uid, const char* filename){
+    const char path_to_ban_users[] = "/home/SEC_OPERATOR/ban_user.txt";
+    std::string line;
+    char ban_user[64];
+    sprintf(ban_user, "%d %s", uid, filename);
+    std::ifstream in2(path_to_ban_users);
+    if (in2.is_open())
+    {
+        while (std::getline(in2, line))
+        {
+            if (line.find(ban_user) == 0) {
+                in2.close();
+                return true;
+            }
+        }
+    }
+    in2.close();
+    return false;
+}
+int ban_user(const int uid, const char* filename){
+    const char path_to_ban_users[] = "/home/SEC_OPERATOR/ban_user.txt";
+
+    if(!user_exist_in_ban_list(uid, filename)){
+        char name[64];
+        sprintf(name, "%d %s", uid, filename);
+        ofstream fileOUT(path_to_ban_users, ios::app);
+        fileOUT << name << endl;
+        fileOUT.close();
+    }
+    return 0;
 
 }
+int unban_user(const int uid, const char* filename){
+    const char path_to_ban_users[] = "/home/SEC_OPERATOR/ban_user.txt";
+    std::string line;
+
+    char name[64];
+    sprintf(name, "%d %s", uid, filename);
+
+    std::ifstream in2(path_to_ban_users);
+    if (in2.is_open())
+    {
+        while (std::getline(in2, line))
+        {
+            if (line == name) {
+                line = "";
+                break;
+            }
+        }
+    }
+    in2.close();
+    return true;
+}
+
+bool authorization(const int uid, const char* filename, const char* passwd){
+    return user_exist_in_ban_list(uid, filename) && correct_passwd(uid, filename, passwd);
+}
+
 
 
 response analist_requets(const request& pkg, int& fd)
@@ -397,17 +500,29 @@ response analist_requets(const request& pkg, int& fd)
 			break;
 
         case REQ_BAN_USER:
-            int res_ban;
             sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
-            ban_user_by_uid(res.target_uid, res.path_to_file);
+            ban_user(res.target_uid, res.path_to_file);
             res.result_code = true;
             break;
-
+        case REQ_UNBAN_USER:
+            sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
+            unban_user(res.target_uid, res.path_to_file);
+            res.result_code = true;
+            break;
         case REQ_SET_PASSWD:
             sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
             set_passwd(res.uid, pkg.filename, pkg.passwd);
             res.result_code = true;
             break;
+        case REQ_EXIST_PASSWD:
+            sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
+            res.result_code = passwd_exist(res.uid, pkg.filename);
+            break;
+        case REQ_AUTH_BY_PASSWD:
+            sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
+            res.result_code = authorization(res.uid, pkg.filename, pkg.passwd);
+            break;
+
 	}
 	return res;
 }

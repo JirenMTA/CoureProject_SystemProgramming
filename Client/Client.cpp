@@ -10,9 +10,9 @@ int main()
 	sec_init();
 	while (true)
 	{
-		cout << "1. Read		2. Write	3. Get right	4. Get list file" << endl
+		cout << "\n1. Read		2. Write	3. Get right	4. Get list file" << endl
 			 << "5. Grant	6. Rewoke	7. Delete" << endl;
-        std::cout << "8. Ban user      9. Passwd file" << std::endl;
+        std::cout << "8. Ban user       9. Unban user      10. Passwd file" << std::endl;
 		cin >> choice;
 		switch (choice)
 		{
@@ -41,6 +41,9 @@ int main()
                 task_try_ban_user();
                 break;
             case 9:
+                task_try_unban_user();
+                break;
+            case 10:
                 task_passwd_by_file();
                 break;
         }
