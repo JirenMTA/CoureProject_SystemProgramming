@@ -211,6 +211,48 @@ void accept_client(int &listen_fd)
 					
 					send_back_result_analist(result_analist, incoming_fd);
 					break;
+
+                    case REQ_BAN_USER:
+                        cout << "\n>> Client " << result_analist.uid << " send request ban user to file "
+                             << "\'"<< result_analist.path_to_file << "\' "
+                             <<  "from user " << result_analist.target_uid << endl;
+                        msg_log  << ">> Client " << result_analist.uid << " send request ban user to file "
+                                 << "\'"<< result_analist.path_to_file << "\' "
+                                 <<  "from user " << result_analist.target_uid << endl;
+                        syslog(LOG_NOTICE, "%s", msg_log.str().c_str());
+                        msg_log.str("");
+
+                        msg_log << ">> Ban ? ";
+                        if (result_analist.result_code)
+                            msg_log << "Yes" << endl;
+                        else
+                            msg_log << "No" << endl;
+                        syslog(LOG_NOTICE, "%s", msg_log.str().c_str());
+                        msg_log.str("");
+
+                        send_back_result_analist(result_analist, incoming_fd);
+                        break;
+
+                    case REQ_SET_PASSWD:
+                        cout << "\n>> Client " << result_analist.uid << " send request set passwd to file "
+                             << "\'"<< result_analist.path_to_file << "\' "
+                             <<  "from user " << result_analist.target_uid << endl;
+                        msg_log  << ">> Client " << result_analist.uid << " send request set passwd to file "
+                                 << "\'"<< result_analist.path_to_file << "\' "
+                                 <<  "from user " << result_analist.target_uid << endl;
+                        syslog(LOG_NOTICE, "%s", msg_log.str().c_str());
+                        msg_log.str("");
+
+                        msg_log << ">> Set passwd ? ";
+                        if (result_analist.result_code)
+                            msg_log << "Yes" << endl;
+                        else
+                            msg_log << "No" << endl;
+                        syslog(LOG_NOTICE, "%s", msg_log.str().c_str());
+                        msg_log.str("");
+
+                        send_back_result_analist(result_analist, incoming_fd);
+                        break;
 				}
 			}
 			cout << "Client " << id << " disconnected!" << endl;

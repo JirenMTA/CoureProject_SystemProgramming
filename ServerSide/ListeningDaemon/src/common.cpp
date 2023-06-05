@@ -1,5 +1,5 @@
 #include "check.hpp"
-#include "type_packet.h"
+#include "../include/type_packet.h"
 #include "common.h"
 #include "functions_of_types.h"
 #include <unistd.h>
@@ -14,6 +14,10 @@
 #include <nlohmann/json.hpp>
 #include <libconfig.h>
 #include <pwd.h>
+
+#include <fstream>
+
+
 using json = nlohmann::json;
 using namespace std;
 
@@ -131,12 +135,7 @@ void add_new_user_in_storage(int uid)
 bool check_exits_file_in_user(char* relative_path)
 {
 	struct stat sb;
-    if (stat(relative_path, &sb) == 0) {
-        return true;
-    } else {
-		return false;
-    }
-	return true;
+    return stat(relative_path, &sb) == 0 ? true : false;
 }
 
 void send_back_result_analist(response& res, int& fd)
@@ -148,7 +147,6 @@ void receive_back_result_analist(response& res, int& fd)
 {
 	check(recv(fd, (void*)&res, sizeof(response), MSG_WAITALL));
 }
-
 
 right_t get_right_from_acl(int my_uid, int owner, const char* filename)
 {
@@ -183,7 +181,8 @@ void update_right_acl(const std::vector<line_right>& list, const char* path_to_a
 	}
 	for (auto right_in_list: list)
 	{
-		fprintf(file, "%d %s %d\n", right_in_list.uid, right_in_list.filename, (int)(right_in_list.right));
+		fprintf(file, "%d %s %d\n", right_in_list.uid, right_in_list.filename,
+                    (int)(right_in_list.right));
 	}
 	fclose(file);
 }
@@ -258,13 +257,15 @@ void list_dir_in_recursive(const char* current_dir)
             if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
                 continue;
             snprintf(path, sizeof(path), "%s/%s", current_dir, entry->d_name);
-            result_static_list_dir.push_back(std::pair<string, bool>(std::string(current_dir) + std::string("/") + std::string(entry->d_name), true));
+            result_static_list_dir.push_back(std::pair<string, bool>(std::string(current_dir) +
+                                        std::string("/") + std::string(entry->d_name), true));
 
             list_dir_in_recursive(path);
         } 
 		else {
 
-            std::string current_file = std::string(current_dir) + std::string("/") + std::string(entry->d_name);
+            std::string current_file = std::string(current_dir) + std::string("/")
+                                    + std::string(entry->d_name);
             result_static_list_dir.push_back(std::pair<string, bool>(current_file, false));
         }
     } 
@@ -276,6 +277,33 @@ std::vector<std::pair<string, bool>> list_dir(const char* current_dir)
 	list_dir_in_recursive(current_dir);
 	return result_static_list_dir;
 }
+
+void ban_user_by_uid(int uid, const char* filename) {
+    const char path_to_ban_users[] = "/home/SEC_OPERATOR/ban_user.txt";
+
+    char name[64];
+    sprintf(name, "%d %s", uid, filename);
+
+    ofstream fileOUT(path_to_ban_users, ios::app); // open filename.txt in append mode
+    fileOUT << name << endl;
+    fileOUT.close();
+}
+
+void set_passwd(const int uid, const char* filename, const char* passwd){
+
+    char path_to_info_file[64];
+    sprintf(path_to_info_file, "/home/SEC_OPERATOR/%d/__info.txt", uid);
+
+    char data[128];
+    sprintf(data, "%s %s", filename, passwd);
+
+    ofstream fileOUT(path_to_info_file, ios::app);
+    fileOUT << data << endl;
+    fileOUT.close();
+
+}
+
+
 response analist_requets(const request& pkg, int& fd)
 {
 	int fd_test_exist;
@@ -367,8 +395,19 @@ response analist_requets(const request& pkg, int& fd)
 			else
 				res.result_code = false;
 			break;
+
+        case REQ_BAN_USER:
+            int res_ban;
+            sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
+            ban_user_by_uid(res.target_uid, res.path_to_file);
+            res.result_code = true;
+            break;
+
+        case REQ_SET_PASSWD:
+            sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
+            set_passwd(res.uid, pkg.filename, pkg.passwd);
+            res.result_code = true;
+            break;
 	}
 	return res;
 }
-
-

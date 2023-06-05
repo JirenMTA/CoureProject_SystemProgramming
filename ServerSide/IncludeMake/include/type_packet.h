@@ -11,6 +11,7 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
+
 enum TYPE
 {
 	REQ_OPEN,
@@ -20,7 +21,9 @@ enum TYPE
 	REQ_GRANT,
 	REQ_REVOKE,
     REQ_CREATE,
-	REQ_GET_STORAGE
+    REQ_GET_STORAGE,
+    REQ_BAN_USER,
+    REQ_SET_PASSWD
 }; 
 
 enum right_t
@@ -42,6 +45,15 @@ struct request
 	char filename[32] = {'\0'};	
 	mode_t mode;
 	right_t right;
+
+    char passwd[32] = {'\0'};
+
+};
+
+struct struct_file {
+    int owner;
+    char filename[32] = {'\0'};
+    char passwd[32] = {'\0'};
 };
 
 struct response
@@ -60,6 +72,7 @@ struct line_right{
 	char filename[32] ={'\0'};
 	int right;
 };
+
 
 #endif // TYPE_PACKET_H
 

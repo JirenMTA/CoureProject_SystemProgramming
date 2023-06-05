@@ -2,45 +2,58 @@
 #include <iostream>
 #include <StorageLib/sec_library.h>
 #include <cstring>
+#include <algorithm>
+#include <pwd.h>
 
 using namespace std;
+
+uid_t get_uid(std::string user){
+    auto it = std::find_if(user.begin(), user.end(), [](char const &c) {
+        return !std::isdigit(c);
+    });
+
+    return it == user.end() ? std::stoi(user) : getpwnam(user.c_str())->pw_uid;
+}
+
 void task_try_read()
 {
-	int target_uid;
-	char buff[64];
-	char filename[32];
-	cout << ">> Input file name: ";
-	cin >> filename;
-	cout << ">> Input owner: ";
-	cin >> target_uid;
-	int fd_received = sec_openat(target_uid, filename, 0777);
-	if (fd_received > 0)
-	{
-		if (read(fd_received, buff, 64) >= 0) 
-		{
-			cout << "Got data: " << buff << endl;
-			close(fd_received);
-		}
-		else
-			cout << "No permission to read!" << endl;
-	}
-	else
-	{
-		cout << "Error when open file!" << endl;
-	}
+    std::string filename;
+    std::string owner;
+    char buff[64];
+
+    std::cout << ">> Input file name: ";
+    std::cin >> filename;
+    std::cout << ">> Input owner: ";
+    std::cin >> owner;
+
+    int fd_received = sec_openat(get_uid(owner), filename.c_str(), 0777);
+    if (fd_received > 0)
+    {
+        if (read(fd_received, buff, 64) >= 0)
+        {
+            cout << "Got data: " << buff << endl;
+            close(fd_received);
+        }
+        else
+            cout << "No permission to read!" << endl;
+    }
+    else
+        cout << "Error when open file!" << endl;
 }
 void task_try_write()
 {
-	char buff[64];
-	int  owner;
-	string str_buff;
-	char filename[32];
-	cout << ">> Input file name: ";
-	cin >> filename;
-	cout << ">> Input owner: ";
-	cin >> owner;
+    char buff[64];
+    std::string filename;
+    std::string owner;
+    string str_buff;
+
+    std::cout << ">> Input file name: ";
+    std::cin >> filename;
+    std::cout << ">> Input owner: ";
+    std::cin >> owner;
+
 	cin.get();
-	int fd_received = sec_openat(owner, filename, 0777);
+	int fd_received = sec_openat(get_uid(owner), filename.c_str(), 0777);
 	if (fd_received > 0)
 	{
 		cout << "Enter new data: ";
@@ -56,73 +69,119 @@ void task_try_write()
 }
 void task_get_right()
 {
-	char filename[32];
-	int uid_owner;
-	right_t r;
-	cout << ">> Input file name: ";
-	cin >> filename;
-	cout << ">> Input owner: ";
-	cin >> uid_owner;
-	r = sec_check(uid_owner, filename, R_NONE);
+    std::string filename;
+    std::string owner;
+    right_t r;
+
+    std::cout << ">> Input file name: ";
+    std::cin >> filename;
+    std::cout << ">> Input owner: ";
+    std::cin >> owner;
+
+	r = sec_check(get_uid(owner), filename.c_str(), R_NONE);
 	cout << "You have right: " << r << endl;
 }
-
 void task_try_grant()
 {
-	char filename[32];
-	right_t r;
-	int recv;
+    char filename[32];
+    right_t r;
+    int recv;
 
-	cout << ">> Input filename: ";
-	cin >> filename;
+    cout << ">> Input filename: ";
+    cin >> filename;
 
-	cout << ">> Input receiver: ";
-	cin >> recv;
+    cout << ">> Input receiver: ";
+    cin >> recv;
 
-	cout << ">> Input right: ";
-	cin >> r;
-	r = sec_grant(recv, filename, r);
-	cout << "Result right: " << r << endl;
+    cout << ">> Input right: ";
+    cin >> r;
+    r = sec_grant(recv, filename, r);
+    cout << "Result right: " << r << endl;
 }
-
 void task_try_list_storage()
 {
-	int owner;
+    std::string owner;
 	std::vector<std::pair<string, bool>> res_list;
 	cout << ">> Input owner: ";
 	cin >> owner;
-	res_list = sec_list_storage(owner);
+	res_list = sec_list_storage(get_uid(owner));
 	cout << res_list;
 }
-
 void task_try_revoke()
 {
-	char filename[32];
-	int recv;
-	right_t r;
-	cout << ">> Input file name: ";
-	cin >> filename;
-	cout << ">> Input receiver: ";
-	cin >> recv;
-	cout << ">> Input right-revoke: ";
-	cin >> r;
-	r = sec_revoke(recv, filename, r);
-}
+    std::string filename;
+    std::string owner;
+    right_t r;
 
+    std::cout << ">> Input filename: ";
+    std::cin >> filename;
+
+    std::cout << ">> Input receiver: ";
+    std::cin >> owner;
+
+    std::cout << ">> Input right-revoke: ";
+    std::cin >> r;
+
+	r = sec_revoke(get_uid(owner), filename.c_str(), r);
+}
 void task_try_delete()
 {
-	char filename[32];
-	int uid;
-	right_t r;
-	cout << ">> Input file name: ";
-	cin >> filename;
-	cout << ">> Input owner: ";
-	cin >> uid;
-	int res_delete = sec_unlink_at(uid, filename);
-	cout << "Result delete: " << res_delete << endl;
+    std::string filename;
+    std::string owner;
+
+    std::cout << ">> Input file name: ";
+    std::cin >> filename;
+    std::cout << ">> Input owner: ";
+    std::cin >> owner;
+
+    int res_delete = sec_unlink_at(get_uid(owner), filename.c_str());
+
+    cout << "Result delete: " << res_delete << endl;
+}
+
+#pragma region daria
+
+void task_try_get_info() {
+    std::string filename;
+
+    std::cout << "Input filename";
+    std::cin >> filename;
+    std::cout << "get info about file" << std::endl;
+
+}
+void task_try_ban_user() {
+    std::string filename;
+    std::string owner;
+
+    std::cout << ">> Input file name: ";
+    std::cin >> filename;
+    std::cout << ">> Input ban: ";
+    std::cin >> owner;
+
+    int res = sec_ban_user(get_uid(owner), filename.c_str());
+
+    cout << "Result: " << res << endl;
+
+}
+void task_passwd_by_file() {
+    std::string filename;
+    std::string owner;
+    std::string passwd;
+
+    std::cout << "Input owner: ";
+    std::cin >> owner;
+    std::cout << "Input file: ";
+    std::cin >> filename;
+    std::cout << "Input passwd";
+    std::cin >> passwd;
+
+    int res = sec_passwd_by_file(get_uid(owner), filename.c_str(), passwd.c_str());
+    std::cout << res;
+
 }
 
 
+#pragma endregion daria
 
 
 
