@@ -402,7 +402,7 @@ int unban_user(const int uid, const char* filename){
 }
 
 bool authorization(const int uid, const char* filename, const char* passwd){
-    return user_exist_in_ban_list(uid, filename) && correct_passwd(uid, filename, passwd);
+    return !user_exist_in_ban_list(uid, filename) && correct_passwd(uid, filename, passwd);
 }
 
 
