@@ -5,7 +5,7 @@
 
 # Course project system programming
 
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&color=0FF74B&width=435&lines=Реализация+хранилища+с+дискреционным+контролем+доступа)](https://git.io/typing-svg)
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&color=0FF74B&width=1000&lines=Реализация+хранилища+с+дискреционным+контролем+доступа)](https://git.io/typing-svg)
 
 ## Complie
 #### 1. Modify files ```CMakeLists.txt``` path to your ```vcpkg``` 
@@ -34,6 +34,7 @@ sudo useradd -m -G adm,sdrom,sudo -s /bin/bash SEC_OPERATOR
 ```
 #### 2. Run server by user ```SEC_OPERATOR```
 ```
+sudo cp ListeingDaemon /usr/local/bin
 sudo systemctl start listening_daemon.service
 ```
 #### 3. Enable daemon-server auto running after restart 
