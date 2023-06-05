@@ -140,11 +140,6 @@ void accept_client(int &listen_fd)
 					msg_log << "Client " << result_analist.uid << " send request get storage of user " << result_analist.target_uid << endl;
 					syslog(LOG_NOTICE, "%s", msg_log.str().c_str());
 					msg_log.str("");
-					// msg_log << "Found storage: ";
-					// if (result_analist.result_code)
-					// 	msg_log << "True" << endl;
-					// else
-					// 	msg_log << "False" << endl;
 					syslog(LOG_NOTICE, "%s", msg_log.str().c_str());	
 					msg_log.str("");
 					cout << "Found storage? " << endl;
@@ -232,6 +227,26 @@ void accept_client(int &listen_fd)
 
                         send_back_result_analist(result_analist, incoming_fd);
                         break;
+                    case REQ_UNBAN_USER:
+                        cout << "\n>> Client " << result_analist.uid << " send request unban user to file "
+                             << "\'"<< result_analist.path_to_file << "\' "
+                             <<  "from user " << result_analist.target_uid << endl;
+                        msg_log  << ">> Client " << result_analist.uid << " send request unban user to file "
+                                 << "\'"<< result_analist.path_to_file << "\' "
+                                 <<  "from user " << result_analist.target_uid << endl;
+                        syslog(LOG_NOTICE, "%s", msg_log.str().c_str());
+                        msg_log.str("");
+
+                        msg_log << ">> Unban ? ";
+                        if (result_analist.result_code)
+                            msg_log << "Yes" << endl;
+                        else
+                            msg_log << "No" << endl;
+                        syslog(LOG_NOTICE, "%s", msg_log.str().c_str());
+                        msg_log.str("");
+
+                        send_back_result_analist(result_analist, incoming_fd);
+                        break;
 
                     case REQ_SET_PASSWD:
                         cout << "\n>> Client " << result_analist.uid << " send request set passwd to file "
@@ -253,7 +268,47 @@ void accept_client(int &listen_fd)
 
                         send_back_result_analist(result_analist, incoming_fd);
                         break;
-				}
+                    case REQ_AUTH_BY_PASSWD:
+                        cout << "\n>> Client " << result_analist.uid << " send request authorization "
+                             << "\'"<< result_analist.path_to_file << "\' "
+                             <<  "from user " << result_analist.target_uid << endl;
+                        msg_log  << ">> Client " << result_analist.uid << " send request authorization "
+                                 << "\'"<< result_analist.path_to_file << "\' "
+                                 <<  "from user " << result_analist.target_uid << endl;
+                        syslog(LOG_NOTICE, "%s", msg_log.str().c_str());
+                        msg_log.str("");
+
+                        msg_log << ">> Authorization ? ";
+                        if (result_analist.result_code)
+                            msg_log << "Yes" << endl;
+                        else
+                            msg_log << "No" << endl;
+                        syslog(LOG_NOTICE, "%s", msg_log.str().c_str());
+                        msg_log.str("");
+
+                        send_back_result_analist(result_analist, incoming_fd);
+                        break;
+                    case REQ_EXIST_PASSWD:
+                        cout << "\n>> Client " << result_analist.uid << " send request exist passwd "
+                             << "\'"<< result_analist.path_to_file << "\' "
+                             <<  "from user " << result_analist.target_uid << endl;
+                        msg_log  << ">> Client " << result_analist.uid << " send request exist passwd "
+                                 << "\'"<< result_analist.path_to_file << "\' "
+                                 <<  "from user " << result_analist.target_uid << endl;
+                        syslog(LOG_NOTICE, "%s", msg_log.str().c_str());
+                        msg_log.str("");
+
+                        msg_log << ">> Exist passwd ? ";
+                        if (result_analist.result_code)
+                            msg_log << "Yes" << endl;
+                        else
+                            msg_log << "No" << endl;
+                        syslog(LOG_NOTICE, "%s", msg_log.str().c_str());
+                        msg_log.str("");
+
+                        send_back_result_analist(result_analist, incoming_fd);
+                        break;
+                }
 			}
 			cout << "Client " << id << " disconnected!" << endl;
 			msg_log << "Client " << id << " disconnected!" << endl;

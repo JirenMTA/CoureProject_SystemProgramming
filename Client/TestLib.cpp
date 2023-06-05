@@ -14,6 +14,19 @@ uid_t get_uid(std::string user){
 
     return it == user.end() ? std::stoi(user) : getpwnam(user.c_str())->pw_uid;
 }
+bool authorization(int uid, std::string& filename){
+
+    if(passwd_exists(uid, filename.c_str())) {
+        std::cout << "Input passwd ";
+        std::string passwd;
+        std::cin >> passwd;
+        if (!authorization_by_passwd(uid, filename.c_str(), passwd.c_str())) {
+            std::cout << "Authorization fail ";
+            return false;
+        }
+    }
+    return true;
+}
 
 void task_try_read()
 {
@@ -25,8 +38,12 @@ void task_try_read()
     std::cin >> filename;
     std::cout << ">> Input owner: ";
     std::cin >> owner;
+    int uid = get_uid(owner);
 
-    int fd_received = sec_openat(get_uid(owner), filename.c_str(), 0777);
+    if(!authorization(uid, filename))
+        return;
+
+    int fd_received = sec_openat(uid, filename.c_str(), 0777);
     if (fd_received > 0)
     {
         if (read(fd_received, buff, 64) >= 0)
@@ -42,18 +59,23 @@ void task_try_read()
 }
 void task_try_write()
 {
-    char buff[64];
     std::string filename;
     std::string owner;
-    string str_buff;
+    char buff[64];
 
     std::cout << ">> Input file name: ";
     std::cin >> filename;
     std::cout << ">> Input owner: ";
     std::cin >> owner;
+    int uid = get_uid(owner);
 
+    if(!authorization(uid, filename))
+        return;
+
+    string str_buff;
 	cin.get();
-	int fd_received = sec_openat(get_uid(owner), filename.c_str(), 0777);
+
+	int fd_received = sec_openat(uid, filename.c_str(), 0777);
 	if (fd_received > 0)
 	{
 		cout << "Enter new data: ";
@@ -71,39 +93,50 @@ void task_get_right()
 {
     std::string filename;
     std::string owner;
+    char buff[64];
+
+    std::cout << ">> Input file name: ";
+    std::cin >> filename;
+    std::cout << ">> Input owner: ";
+    std::cin >> owner;
+    int uid = get_uid(owner);
+
+    if(!authorization(uid, filename))
+        return;
+
+    right_t r;
+
+	r = sec_check(uid, filename.c_str(), R_NONE);
+	cout << "You have right: " << r << endl;
+
+}
+void task_try_grant()
+{
+    std::string filename;
+    std::string owner;
+    char buff[64];
     right_t r;
 
     std::cout << ">> Input file name: ";
     std::cin >> filename;
     std::cout << ">> Input owner: ";
     std::cin >> owner;
+    int uid = get_uid(owner);
 
-	r = sec_check(get_uid(owner), filename.c_str(), R_NONE);
-	cout << "You have right: " << r << endl;
-}
-void task_try_grant()
-{
-    char filename[32];
-    right_t r;
-    int recv;
-
-    cout << ">> Input filename: ";
-    cin >> filename;
-
-    cout << ">> Input receiver: ";
-    cin >> recv;
+    if(!authorization(uid, filename))
+        return;
 
     cout << ">> Input right: ";
     cin >> r;
-    r = sec_grant(recv, filename, r);
+    r = sec_grant(uid, filename.c_str(), r);
     cout << "Result right: " << r << endl;
 }
 void task_try_list_storage()
 {
     std::string owner;
 	std::vector<std::pair<string, bool>> res_list;
-	cout << ">> Input owner: ";
-	cin >> owner;
+	std::cout << ">> Input owner: ";
+	std::cin >> owner;
 	res_list = sec_list_storage(get_uid(owner));
 	cout << res_list;
 }
@@ -153,15 +186,37 @@ void task_try_ban_user() {
     std::string filename;
     std::string owner;
 
-    std::cout << ">> Input file name: ";
+    std::cout << ">> Input filename: ";
     std::cin >> filename;
-    std::cout << ">> Input ban: ";
+    std::cout << ">> Input ban user: ";
     std::cin >> owner;
 
-    int res = sec_ban_user(get_uid(owner), filename.c_str());
+    int uid = get_uid(owner);
+
+    if(!authorization(uid, filename))
+        return;
+
+    int res = sec_ban_user(uid, filename.c_str());
 
     cout << "Result: " << res << endl;
+}
+void task_try_unban_user() {
+    std::string filename;
+    std::string owner;
 
+    std::cout << ">> Input filename: ";
+    std::cin >> filename;
+    std::cout << ">> Input unban user: ";
+    std::cin >> owner;
+
+    int uid = get_uid(owner);
+
+    if(!authorization(uid, filename))
+        return;
+
+    int res = sec_unban_user(uid, filename.c_str());
+
+    cout << "Result: " << res << endl;
 }
 void task_passwd_by_file() {
     std::string filename;
@@ -172,12 +227,15 @@ void task_passwd_by_file() {
     std::cin >> owner;
     std::cout << "Input file: ";
     std::cin >> filename;
-    std::cout << "Input passwd";
+    int uid = get_uid(owner);
+    if(!authorization(uid, filename))
+        return;
+
+    std::cout << "Input passwd ";
     std::cin >> passwd;
 
-    int res = sec_passwd_by_file(get_uid(owner), filename.c_str(), passwd.c_str());
+    int res = sec_passwd_by_file(uid, filename.c_str(), passwd.c_str());
     std::cout << res;
-
 }
 
 

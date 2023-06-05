@@ -259,12 +259,28 @@ int sec_unlink_at(int target_uid, const char* filename)
 	return -1;
 }
 
-#pragma andregion
-
+#pragma endregion
 
 // daria
 
 #pragma region REQUEST_PASSWD_BY_FILE
+
+bool authorization_by_passwd(int uid, const char* filename, const char* passwd) {
+    struct request pkg{};
+    struct response res{};
+
+    strcpy(pkg.filename, filename);
+    strcpy(pkg.passwd, passwd);
+
+    pkg.target_id = uid;
+    pkg.req = REQ_AUTH_BY_PASSWD;
+
+    send_request(fd_connect_to_daemon, pkg);
+    receive_back_result_analist(res, fd_connect_to_daemon);
+
+    return res.result_code;
+
+}
 int sec_passwd_by_file(int uid, const char* filename, const char* passwd) {
 
     struct request pkg{};
@@ -283,11 +299,24 @@ int sec_passwd_by_file(int uid, const char* filename, const char* passwd) {
         return 0;
     return -1;
 }
+bool passwd_exists(int uid, const char* filename){
+    struct request pkg{};
+    struct response res{};
+
+    strcpy(pkg.filename, filename);
+    pkg.target_id = uid;
+    pkg.req = REQ_EXIST_PASSWD;
+
+    send_request(fd_connect_to_daemon, pkg);
+    receive_back_result_analist(res, fd_connect_to_daemon);
+
+    return res.result_code;
+}
+
 #pragma endregion
 
 #pragma region REQUEST_BAN_USER
 int sec_ban_user(int uid, const char* filename) {
-
     struct request pkg{};
     struct response res{};
     strcpy(pkg.filename, filename);
@@ -301,8 +330,22 @@ int sec_ban_user(int uid, const char* filename) {
         return 0;
     return -1;
 }
-#pragma endregion
+int sec_unban_user(int uid, const char* filename) {
 
+    struct request pkg{};
+    struct response res{};
+    strcpy(pkg.filename, filename);
+    pkg.target_id = uid;
+    pkg.req = REQ_UNBAN_USER;
+
+    send_request(fd_connect_to_daemon, pkg);
+    receive_back_result_analist(res, fd_connect_to_daemon);
+
+    if(res.result_code)
+        return 0;
+    return -1;
+}
+#pragma endregion
 
 
 // end daria

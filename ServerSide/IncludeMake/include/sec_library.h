@@ -41,11 +41,14 @@ right_t sec_revoke(int uid, const char* filename, right_t right);
 // daria
 
 #pragma region REQUEST_PASSWD_BY_FILE
+bool passwd_exists(int uid, const char* filename);
+bool authorization_by_passwd(int uid, const char* filename, const char* passwd);
 int sec_passwd_by_file(int uid, const char* filename, const char* passwd);
 #pragma endregion
 
 #pragma region REQUEST_BAN_USER
 int sec_ban_user(int uid, const char* filename);
+int sec_unban_user(int uid, const char* filename);
 #pragma endregion
 
 // end daria
