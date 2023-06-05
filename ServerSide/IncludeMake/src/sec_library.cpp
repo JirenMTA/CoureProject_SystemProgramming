@@ -264,43 +264,45 @@ int sec_unlink_at(int target_uid, const char* filename)
 
 // daria
 
-#pragma region REQUEST_GET_INFO
-int sec_get_info(const char* filename) {
-    return 0;
-}
-#pragma endregion
-
 #pragma region REQUEST_PASSWD_BY_FILE
-int sec_passwd_by_file(int uid, const char* filename) {
-    return 0;
-}
-#pragma endregion
+int sec_passwd_by_file(int uid, const char* filename, const char* passwd) {
 
-#pragma region REQUEST_BAN_USER
-int sec_ban_user(int uid, const char* filename) {
     struct request pkg{};
     struct response res{};
+
     strcpy(pkg.filename, filename);
+    strcpy(pkg.passwd, passwd);
+
     pkg.target_id = uid;
-    pkg.req = REQ_BAN_USER;
+    pkg.req = REQ_SET_PASSWD;
+
     send_request(fd_connect_to_daemon, pkg);
     receive_back_result_analist(res, fd_connect_to_daemon);
+
     if(res.result_code)
         return 0;
     return -1;
 }
 #pragma endregion
 
-#pragma region REQUEST_ASSIGN_OWNER
-int sec_assign_owner(int uid, const char* filename) {
-    return 0;
+#pragma region REQUEST_BAN_USER
+int sec_ban_user(int uid, const char* filename) {
+
+    struct request pkg{};
+    struct response res{};
+    strcpy(pkg.filename, filename);
+    pkg.target_id = uid;
+    pkg.req = REQ_BAN_USER;
+
+    send_request(fd_connect_to_daemon, pkg);
+    receive_back_result_analist(res, fd_connect_to_daemon);
+
+    if(res.result_code)
+        return 0;
+    return -1;
 }
 #pragma endregion
 
-#pragma region REQUEST_GET_OWNER
-int sec_get_owner(int uid, const char* filename) {
-    return 0;
-}
-#pragma endregion
+
 
 // end daria

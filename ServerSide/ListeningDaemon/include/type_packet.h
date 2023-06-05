@@ -23,7 +23,8 @@ enum TYPE
 	REQ_REVOKE,
     REQ_CREATE,
 	REQ_GET_STORAGE,
-    REQ_BAN_USER
+    REQ_BAN_USER,
+    REQ_SET_PASSWD
 }; 
 
 enum right_t
@@ -45,6 +46,8 @@ struct request
 	char filename[32]={'\0'};	
 	mode_t mode;
 	right_t right;
+
+    char passwd[32]={'\0'};
 };
 
 struct response

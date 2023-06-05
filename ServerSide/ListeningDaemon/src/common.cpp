@@ -1,5 +1,5 @@
 #include "check.hpp"
-#include "type_packet.h"
+#include "../include/type_packet.h"
 #include "common.h"
 #include "functions_of_types.h"
 #include <unistd.h>
@@ -14,6 +14,8 @@
 #include <nlohmann/json.hpp>
 #include <libconfig.h>
 #include <pwd.h>
+
+#include <fstream>
 
 
 using json = nlohmann::json;
@@ -282,9 +284,22 @@ void ban_user_by_uid(int uid, const char* filename) {
     char name[64];
     sprintf(name, "%d %s", uid, filename);
 
-    int fd = open(path_to_ban_users, O_CREAT | O_WRONLY | O_EXCL | O_APPEND, S_IRUSR | S_IWUSR);
-    write(fd, name, strlen(name));
-    close(fd);
+    ofstream fileOUT(path_to_ban_users, ios::app); // open filename.txt in append mode
+    fileOUT << name << endl;
+    fileOUT.close();
+}
+
+void set_passwd(const int uid, const char* filename, const char* passwd){
+
+    char path_to_info_file[64];
+    sprintf(path_to_info_file, "/home/SEC_OPERATOR/%d/__info.txt", uid);
+
+    char data[128];
+    sprintf(data, "%s %s", filename, passwd);
+
+    ofstream fileOUT(path_to_info_file, ios::app);
+    fileOUT << data << endl;
+    fileOUT.close();
 
 }
 
@@ -383,16 +398,16 @@ response analist_requets(const request& pkg, int& fd)
 
         case REQ_BAN_USER:
             int res_ban;
-            sprintf(res.path_to_file, "./%d/%s", res.target_uid, pkg.filename);
+            sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
             ban_user_by_uid(res.target_uid, res.path_to_file);
             res.result_code = true;
             break;
 
-        /*
-        This is CASE lalala:
-         */
-
-
+        case REQ_SET_PASSWD:
+            sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
+            set_passwd(res.uid, pkg.filename, pkg.passwd);
+            res.result_code = true;
+            break;
 	}
 	return res;
 }

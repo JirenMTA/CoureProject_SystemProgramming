@@ -164,12 +164,22 @@ void task_try_ban_user() {
 
 }
 void task_passwd_by_file() {
-    std::cout << "task_passwd_by_file" << std::endl;
+    std::string filename;
+    std::string owner;
+    std::string passwd;
+
+    std::cout << "Input owner: ";
+    std::cin >> owner;
+    std::cout << "Input file: ";
+    std::cin >> filename;
+    std::cout << "Input passwd";
+    std::cin >> passwd;
+
+    int res = sec_passwd_by_file(get_uid(owner), filename.c_str(), passwd.c_str());
+    std::cout << res;
 
 }
-void task_assign_owner() {
-    std::cout << "task_assign_owner" << std::endl;
-}
+
 
 #pragma endregion daria
 

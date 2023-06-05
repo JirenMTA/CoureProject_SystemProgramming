@@ -40,24 +40,12 @@ right_t sec_revoke(int uid, const char* filename, right_t right);
 
 // daria
 
-#pragma region REQUEST_GET_INFO
-int sec_get_info(const char* filename);
-#pragma endregion
-
 #pragma region REQUEST_PASSWD_BY_FILE
-int sec_passwd_by_file(int uid, const char* filename);
+int sec_passwd_by_file(int uid, const char* filename, const char* passwd);
 #pragma endregion
 
 #pragma region REQUEST_BAN_USER
 int sec_ban_user(int uid, const char* filename);
-#pragma endregion
-
-#pragma region REQUEST_ASSIGN_OWNER
-int sec_assign_owner(int uid, const char* filename);
-#pragma endregion
-
-#pragma region REQUEST_GET_OWNER
-int sec_get_owner(int uid, const char* filename);
 #pragma endregion
 
 // end daria
