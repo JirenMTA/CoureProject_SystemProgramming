@@ -14,12 +14,23 @@ uid_t get_uid(std::string user){
 
     return it == user.end() ? std::stoi(user) : getpwnam(user.c_str())->pw_uid;
 }
+
+std::string input_passwd(){
+    std::string passwd;
+    std::cin >> passwd;
+
+    return std::to_string(std::hash<std::string>{}(passwd));
+}
+
 bool authorization(int uid, std::string& filename){
+    if (user_in_ban_list(uid, filename.c_str())) {
+        std::cout << "User in ban list " << std::endl;
+        return false;
+    }
 
     if(passwd_exists(uid, filename.c_str())) {
         std::cout << "Input passwd ";
-        std::string passwd;
-        std::cin >> passwd;
+        std::string passwd = input_passwd();
         if (!authorization_by_passwd(uid, filename.c_str(), passwd.c_str())) {
             std::cout << "Authorization fail ";
             return false;
@@ -137,6 +148,7 @@ void task_try_list_storage()
 	std::vector<std::pair<string, bool>> res_list;
 	std::cout << ">> Input owner: ";
 	std::cin >> owner;
+
 	res_list = sec_list_storage(get_uid(owner));
 	cout << res_list;
 }
@@ -155,7 +167,11 @@ void task_try_revoke()
     std::cout << ">> Input right-revoke: ";
     std::cin >> r;
 
-	r = sec_revoke(get_uid(owner), filename.c_str(), r);
+    int uid = get_uid(owner);
+    if(!authorization(uid, filename))
+        return;
+
+	r = sec_revoke(uid, filename.c_str(), r);
 }
 void task_try_delete()
 {
@@ -167,21 +183,18 @@ void task_try_delete()
     std::cout << ">> Input owner: ";
     std::cin >> owner;
 
-    int res_delete = sec_unlink_at(get_uid(owner), filename.c_str());
+    int uid = get_uid(owner);
+    if(!authorization(uid, filename))
+        return;
+
+    int res_delete = sec_unlink_at(uid, filename.c_str());
 
     cout << "Result delete: " << res_delete << endl;
 }
 
 #pragma region daria
 
-void task_try_get_info() {
-    std::string filename;
 
-    std::cout << "Input filename";
-    std::cin >> filename;
-    std::cout << "get info about file" << std::endl;
-
-}
 void task_try_ban_user() {
     std::string filename;
     std::string owner;
@@ -232,7 +245,7 @@ void task_passwd_by_file() {
         return;
 
     std::cout << "Input passwd ";
-    std::cin >> passwd;
+    passwd = input_passwd();
 
     int res = sec_passwd_by_file(uid, filename.c_str(), passwd.c_str());
     std::cout << res;

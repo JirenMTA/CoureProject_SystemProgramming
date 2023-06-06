@@ -347,17 +347,20 @@ bool correct_passwd(const int uid, const char* filename, const char* passwd){
     }
     return false;
 }
+
 bool user_exist_in_ban_list(int uid, const char* filename){
     const char path_to_ban_users[] = "/home/SEC_OPERATOR/ban_user.txt";
     std::string line;
+
     char ban_user[64];
     sprintf(ban_user, "%d %s", uid, filename);
+
     std::ifstream in2(path_to_ban_users);
     if (in2.is_open())
     {
         while (std::getline(in2, line))
         {
-            if (line.find(ban_user) == 0) {
+            if (line == ban_user) {
                 in2.close();
                 return true;
             }
@@ -366,6 +369,7 @@ bool user_exist_in_ban_list(int uid, const char* filename){
     in2.close();
     return false;
 }
+
 int ban_user(const int uid, const char* filename){
     const char path_to_ban_users[] = "/home/SEC_OPERATOR/ban_user.txt";
 
@@ -380,24 +384,27 @@ int ban_user(const int uid, const char* filename){
 
 }
 int unban_user(const int uid, const char* filename){
-    const char path_to_ban_users[] = "/home/SEC_OPERATOR/ban_user.txt";
+    const char path[] = "/home/SEC_OPERATOR/ban_user.txt";
+
+    char eraseLine[64];
+    sprintf(eraseLine, "%d %s", uid, filename);
+
     std::string line;
+    std::ifstream fin;
 
-    char name[64];
-    sprintf(name, "%d %s", uid, filename);
+    fin.open(path);
+    std::ofstream temp;
+    temp.open("temp.txt");
 
-    std::ifstream in2(path_to_ban_users);
-    if (in2.is_open())
-    {
-        while (std::getline(in2, line))
-        {
-            if (line == name) {
-                line = "";
-                break;
-            }
-        }
+    while (getline(fin, line)) {
+        if (line != eraseLine)
+            temp << line << std::endl;
     }
-    in2.close();
+
+    temp.close();
+    fin.close();
+    remove(path);
+    rename("temp.txt", path);
     return true;
 }
 
@@ -506,7 +513,7 @@ response analist_requets(const request& pkg, int& fd)
             break;
         case REQ_UNBAN_USER:
             sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
-            unban_user(res.target_uid, res.path_to_file);
+            unban_user(pkg.target_id, res.path_to_file);
             res.result_code = true;
             break;
         case REQ_SET_PASSWD:
@@ -522,7 +529,12 @@ response analist_requets(const request& pkg, int& fd)
             sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
             res.result_code = authorization(res.uid, pkg.filename, pkg.passwd);
             break;
-
+        case REQ_USER_IN_BAN:
+            sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
+            char path[64];
+            sprintf(path, "./%d/%s", pkg.target_id, pkg.filename);
+            res.result_code = user_exist_in_ban_list(res.uid, path);
+            break;
 	}
 	return res;
 }
