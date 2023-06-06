@@ -16,4 +16,4 @@ private slots:
     void HandlerBtnLogin();
 };
 
-#endif //TRYGUI_WINDOWLOGIN_H
+#endif

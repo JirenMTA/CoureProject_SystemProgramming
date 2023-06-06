@@ -1,26 +1,3 @@
-#cmake_minimum_required(VERSION 3.23)
-#project(untitled)
-#
-#set(CMAKE_CXX_STANDARD 14)
-#set(CMAKE_AUTOMOC ON)
-#set(CMAKE_AUTORCC ON)
-#set(CMAKE_AUTOUIC ON)
-#
-#
-#find_package(Qt5 COMPONENTS
-#        Core
-#        Gui
-#        Widgets
-#        REQUIRED)
-#
-#add_executable( main.cpp MainWindow.cpp MainWindow.h WindowRead.cpp WindowRead.h WindowGetRight.cpp WindowGetRight.h WindowGrant.cpp WindowGrant.h WindowListStorage.cpp WindowListStorage.h WindowRevoke.cpp WindowRevoke.h WindowLogin.cpp WindowLogin.h WindowDelete.cpp WindowDelete.h)
-#target_link_libraries(untitled
-#        Qt5::Core
-#        Qt5::Gui
-#        Qt5::Widgets
-#        )
-
-
 cmake_minimum_required(VERSION 3.20)
 project(untitled)
 

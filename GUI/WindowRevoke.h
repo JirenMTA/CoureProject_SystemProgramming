@@ -1,7 +1,3 @@
-//
-// Created by hung on 15.03.23.
-//
-
 #ifndef TRYGUI_WINDOWREVOKE_H
 #define TRYGUI_WINDOWREVOKE_H
 
@@ -22,12 +18,13 @@ private:
 public:
     WindowRevoke(QSize fixedSize);
     void AddBtnAndTb();
+    void Revoke(int uid, const char* filename, right_t right);
+
 public slots:
     void revokeRight();
+
 private slots:
     void passwordHandler();
 };
 
-
-
-#endif //TRYGUI_WINDOWREVOKE_H
+#endif

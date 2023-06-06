@@ -39,9 +39,8 @@ private slots:
     void handlerDelete();
     void handlerBanUser();
     void handlerPasswdFile();
+
 public:
     MainWindow(const QSize& maxBackgroundSize);
     ~MainWindow();
-
-    //void closeEvent(QCloseEvent *event);
 };

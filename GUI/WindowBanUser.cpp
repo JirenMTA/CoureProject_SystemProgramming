@@ -1,7 +1,7 @@
 #include "WindowBanUser.h"
 
 void WindowBanUser::AddBtnAndTb() {
-    this->setWindowTitle("Ban user");
+    this->setWindowTitle("Ban/Unban user");
     QWidget *widget = new QWidget(this);
     widget->setFixedSize(this->width(), this->height());
 
@@ -59,90 +59,96 @@ WindowBanUser::WindowBanUser(QSize fixedSize) {
     AddBtnAndTb();
 }
 
-void WindowBanUser::banUser() {
+void WindowBanUser::Ban(int uid, const char* filename){
     QMessageBox msgBox;
-    stringstream msgRight;
+    try
+    {
+        int res = sec_ban_user(uid, filename);
+        msgBox.setText((string("Got result Ban user: ") + to_string(res)).c_str());
+        msgBox.exec();
+    }
+    catch(std::invalid_argument const& ex){
+        msgBox.setText(QString("Error: ") + QString(ex.what()));
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+    }
+    okBtn->setEnabled(false);
+    passwd->setReadOnly(true);
+    labelPasswd->setText("");
+}
+
+void WindowBanUser::Unban(int uid, const char* filename){
+    QMessageBox msgBox;
+    try
+    {
+        int res = sec_unban_user(uid, filename);
+        msgBox.setText((string("Got result Unban user: ") + to_string(res)).c_str());
+        msgBox.exec();
+    }
+    catch(std::invalid_argument const& ex){
+        msgBox.setText(QString("Error: ") + QString(ex.what()));
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+    }
+    okBtn->setEnabled(false);
+    passwd->setReadOnly(true);
+    labelPasswd->setText("");
+}
+
+void WindowBanUser::banUser() {
     int uid = std::stoi(user->toPlainText().toStdString());
     string filename = file->toPlainText().toStdString();
     if (passwd_exists(uid, filename.c_str())){
         okBtn->setEnabled(true);
         passwd->setReadOnly(false);
         labelPasswd->setText("Enter password");
-        connect(okBtn, &QPushButton::released, this, &WindowBanUser::passwordHandler);
+        connect(okBtn, &QPushButton::released, this, &WindowBanUser::banPasswordHandler);
     }
     else{
-        try
-        {
-            int res = sec_ban_user(uid, filename.c_str());
-            msgBox.setText((string("Got result unban user: ") + to_string(res)).c_str());
-            msgBox.exec();
-        }
-        catch(std::invalid_argument const& ex){
-            msgBox.setText(QString("Error  : ") + QString(ex.what()));
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.exec();
-        }
-        okBtn->setEnabled(false);
-        passwd->setReadOnly(true);
-        labelPasswd->setText("");
+        Ban(uid, filename.c_str());
     }
 }
 
 void WindowBanUser::unbanUser() {
-    QMessageBox msgBox;
-    stringstream msgRight;
     int uid = std::stoi(user->toPlainText().toStdString());
     string filename = file->toPlainText().toStdString();
     if (passwd_exists(uid, filename.c_str())){
         okBtn->setEnabled(true);
         passwd->setReadOnly(false);
         labelPasswd->setText("Enter password");
-        connect(okBtn, &QPushButton::released, this, &WindowBanUser::passwordHandler);
+        connect(okBtn, &QPushButton::released, this, &WindowBanUser::unbanPasswordHandler);
     }
     else{
-        try
-        {
-            int res = sec_unban_user(uid, filename.c_str());
-            msgBox.setText((string("Got result unban user: ") + to_string(res)).c_str());
-            msgBox.exec();
-        }
-        catch(std::invalid_argument const& ex){
-            msgBox.setText(QString("Error  : ") + QString(ex.what()));
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.exec();
-        }
-        okBtn->setEnabled(false);
-        passwd->setReadOnly(true);
-        labelPasswd->setText("");
+        Unban(uid, filename.c_str());
     }
 }
 
-void WindowBanUser::passwordHandler(){
-    stringstream msgRight;
+void WindowBanUser::banPasswordHandler(){
     QMessageBox msgBox;
-    stringstream right_in_stream;
+    int uid = std::stoi(user->toPlainText().toStdString());
+    string filename = file->toPlainText().toStdString();
+    string password = passwd->text().toStdString();
+    if(authorization_by_passwd(uid, filename.c_str(), password.c_str())){
+        Ban(uid, filename.c_str());
+    }
+    else{
+        msgBox.setText(QString("Ban error"));
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+    }
+}
+
+void WindowBanUser::unbanPasswordHandler(){
+    QMessageBox msgBox;
     int uid = std::stoi(user->toPlainText().toStdString());
     string filename = file->toPlainText().toStdString();
     string password = passwd->text().toStdString();
 
     if(authorization_by_passwd(uid, filename.c_str(), password.c_str())){
-        try
-        {
-            int res = sec_unban_user(uid, filename.c_str());
-            msgBox.setText((string("Got result ban user: ") + to_string(res)).c_str());
-            msgBox.exec();
-        }
-        catch(std::invalid_argument const& ex){
-            msgBox.setText(QString("Error  : ") + QString(ex.what()));
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.exec();
-        }
-        okBtn->setEnabled(false);
-        passwd->setReadOnly(true);
-        labelPasswd->setText("");
+        Unban(uid, filename.c_str());
     }
     else{
-        msgBox.setText(QString("Error"));
+        msgBox.setText(QString("Unban error"));
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.exec();
     }

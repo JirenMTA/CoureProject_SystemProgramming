@@ -13,11 +13,9 @@ private:
     QPushButton *btn;
 public:
     WindowPasswdFile(QSize fixedSize);
-
     void AddBtnAndTb();
 
 public slots:
-
     void passwdFile();
 };
 #endif

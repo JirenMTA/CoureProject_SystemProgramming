@@ -63,7 +63,7 @@ void WindowPasswdFile::passwdFile() {
         msgBox.exec();
     }
     catch(std::invalid_argument const& ex){
-        msgBox.setText(QString("Error  : ") + QString(ex.what()));
+        msgBox.setText(QString("Error: ") + QString(ex.what()));
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.exec();
     }

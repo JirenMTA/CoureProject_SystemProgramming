@@ -15,12 +15,13 @@ private:
     QPushButton* okBtn;
 public:
     WindowDelete(QSize fixedSize);
-
     void AddBtnAndTb();
+    void Delete(int uid, const char* filename);
 
 public slots:
     void deleteFile();
+
 private slots:
     void passwordHandler();
 };
-#endif //TRYGUI_WINDOWDELETE_H
+#endif
