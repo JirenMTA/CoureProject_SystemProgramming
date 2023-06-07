@@ -38,11 +38,12 @@ right_t sec_grant(int uid, const char* filename, right_t right);
 right_t sec_revoke(int uid, const char* filename, right_t right);
 #pragma endregion
 
-// daria
+#pragma regiom REQUEST_AUTHORIZATION
+bool authorization_by_passwd(int uid, const char* filename, const char* passwd);
+#pragma endregion
 
 #pragma region REQUEST_PASSWD_BY_FILE
 bool passwd_exists(int uid, const char* filename);
-bool authorization_by_passwd(int uid, const char* filename, const char* passwd);
 int sec_passwd_by_file(int uid, const char* filename, const char* passwd);
 #pragma endregion
 
@@ -52,7 +53,6 @@ int sec_unban_user(int uid, const char* filename);
 bool user_in_ban_list(int uid, const char* filename);
 #pragma endregion
 
-// end daria
 
 #pragma region REQUEST_DELETE
 int sec_unlink_at(int target_uid, const char* filename);

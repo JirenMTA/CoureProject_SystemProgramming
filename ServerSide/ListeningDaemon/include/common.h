@@ -6,8 +6,6 @@
 
 using namespace std;
 
-
-
 extern const char* SOCKET_PATH;
 extern const char* working_directory;
  

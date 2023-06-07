@@ -4,7 +4,6 @@
 using namespace std;
 extern const char* SOCKET_PATH;
 extern const char* working_directory;
- 
 
 int read_setting_file();
 void send_request(int& fd, request& pkg);

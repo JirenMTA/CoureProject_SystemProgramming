@@ -72,25 +72,3 @@ struct line_right{
 };
 
 #endif // TYPE_PACKET_H
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
