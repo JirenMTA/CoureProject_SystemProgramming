@@ -129,7 +129,7 @@ void task_try_grant()
 
     std::cout << ">> Input file name: ";
     std::cin >> filename;
-    std::cout << ">> Input owner: ";
+    std::cout << ">> Input recuiver: ";
     std::cin >> owner;
     int uid = get_uid(owner);
 
@@ -240,7 +240,7 @@ void task_passwd_by_file() {
     if(!authorization(uid, filename))
         return;
 
-    std::cout << "Input passwd ";
+    std::cout << "Input new passwd ";
     passwd = input_passwd();
 
     int res = sec_passwd_by_file(uid, filename.c_str(), passwd.c_str());

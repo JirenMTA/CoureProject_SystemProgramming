@@ -362,6 +362,7 @@ bool set_passwd(const char* filename, const char* passwd){
         fin.close();
         remove(path_to_info_file);
         rename("temp.txt", path_to_info_file);
+        return true;
     }
 
     ofstream fileOUT(path_to_info_file, ios::app);
