@@ -7,6 +7,8 @@
 
 using namespace std;
 
+// TODO
+// TODO clean buffer
 uid_t get_uid(std::string user){
     auto it = std::find_if(user.begin(), user.end(), [](char const &c) {
         return !std::isdigit(c);
@@ -27,7 +29,6 @@ bool authorization(int uid, std::string& filename){
         std::cout << "User in ban list " << std::endl;
         return false;
     }
-
     if(passwd_exists(uid, filename.c_str())) {
         std::cout << "Input passwd ";
         std::string passwd = input_passwd();
@@ -44,7 +45,7 @@ void task_try_read()
     std::string filename;
     std::string owner;
     char buff[64];
-
+    memset(buff, 0, sizeof(buff));
     std::cout << ">> Input file name: ";
     std::cin >> filename;
     std::cout << ">> Input owner: ";
@@ -73,7 +74,7 @@ void task_try_write()
     std::string filename;
     std::string owner;
     char buff[64];
-
+    memset(buff, 0, sizeof(buff));
     std::cout << ">> Input file name: ";
     std::cin >> filename;
     std::cout << ">> Input owner: ";
@@ -104,7 +105,6 @@ void task_get_right()
 {
     std::string filename;
     std::string owner;
-    char buff[64];
 
     std::cout << ">> Input file name: ";
     std::cin >> filename;
@@ -125,7 +125,7 @@ void task_try_grant()
 {
     std::string filename;
     std::string owner;
-    char buff[64];
+
     right_t r;
 
     std::cout << ">> Input file name: ";
