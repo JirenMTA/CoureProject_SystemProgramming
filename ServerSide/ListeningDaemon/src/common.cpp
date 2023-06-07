@@ -14,18 +14,16 @@
 #include <nlohmann/json.hpp>
 #include <libconfig.h>
 #include <pwd.h>
-
 #include <fstream>
-
-
 
 using json = nlohmann::json;
 using namespace std;
 
-
 const char* SOCKET_PATH;
 const char* working_directory;
- 
+
+/// Read settings file
+/// \return code. If successful return 0
 int read_setting_file()
 {
 	config_t cfg;
@@ -50,6 +48,8 @@ int read_setting_file()
 	return 0;
 }
 
+/// create socket
+/// \param fd_to_create - socket descriptor
 void create_socket(int& fd_to_create)
 {
 	setuid(getuid());
@@ -71,8 +71,10 @@ void create_socket(int& fd_to_create)
 	chown(SOCKET_PATH, pw->pw_uid, pw->pw_gid);
 }
 
-
-void send_descript(int& incomming_fd, int& fd_to_send)
+/// send descriptor
+/// \param incomming_fd - incoming socket descriptor
+/// \param fd_to_send - outgoing socket descriptor
+void send_descript(int& incoming_fd, int& fd_to_send)
 {
 	char data_buffer[1];
 	iovec data_iov{.iov_base = data_buffer, .iov_len = 1};
@@ -93,7 +95,7 @@ void send_descript(int& incomming_fd, int& fd_to_send)
 		chdr->cmsg_level = SOL_SOCKET; //UNIX socket level
 		chdr->cmsg_type  = SCM_RIGHTS; //transferring descriptors
 		*(int*)CMSG_DATA(chdr) = fd_fake;
-		check(sendmsg(incomming_fd, &msg, 0));
+		check(sendmsg(incoming_fd, &msg, 0));
 	}
 	else
 	{
@@ -103,9 +105,12 @@ void send_descript(int& incomming_fd, int& fd_to_send)
 		chdr->cmsg_type  = SCM_RIGHTS; //transferring descriptors
 
 		*(int*)CMSG_DATA(chdr) = fd_to_send;
-		check(sendmsg(incomming_fd, &msg, 0));
+		check(sendmsg(incoming_fd, &msg, 0));
 	}
 }
+/// Get real uid user from socket
+/// \param incoming_fd - incoming socket descriptor
+/// \return real uid user
 int get_uid_from_socket(int& incoming_fd)
 {
 	socklen_t len;
@@ -117,12 +122,16 @@ int get_uid_from_socket(int& incoming_fd)
 
 }
 
+/// send request
+/// \param fd - socket descriptor
+/// \param pkg - request
 void send_request(int& fd, request& pkg)
 {
 	check(send(fd, (void*)&pkg, sizeof(pkg), MSG_WAITALL));
 }
 
-
+/// add new user in storage :)
+/// \param uid - uid user to be added
 void add_new_user_in_storage(int uid)
 {
 	char user_dir[32], user_acl[32];
@@ -132,20 +141,34 @@ void add_new_user_in_storage(int uid)
 	mkdir("./acl", 0777);
 	open(user_acl, O_CREAT, 0777);
 }
+/// check exist file in user
+/// \param relative_path - relative path to file
+/// \return true - if exist file in user, false - otherwise
 bool check_exits_file_in_user(char* relative_path)
 {
 	struct stat sb;
     return stat(relative_path, &sb) == 0 ? true : false;
 }
+/// send back result
+/// \param res - response, struct response
+/// \param fd - socket descriptor
 void send_back_result_analist(response& res, int& fd)
 {
 	check(send(fd, (const void*)&res, sizeof(response), MSG_WAITALL));
 }
+/// reveive back result
+/// \param res - response, struct response
+/// \param fd - socket descriptor
 void receive_back_result_analist(response& res, int& fd)
 {
 	check(recv(fd, (void*)&res, sizeof(response), MSG_WAITALL));
 }
 
+/// get right to user
+/// \param my_uid - real uid user
+/// \param owner - user to be added right
+/// \param filename - filename
+/// \return right new user
 right_t get_right_from_acl(int my_uid, int owner, const char* filename)
 {
 	char path_to_file[32];
@@ -169,7 +192,9 @@ right_t get_right_from_acl(int my_uid, int owner, const char* filename)
 
 	return right_t::R_NONE;
 }
-
+/// update right
+/// \param list struct line_right
+/// \param path_to_acl - path to file
 void update_right_acl(const std::vector<line_right>& list, const char* path_to_acl)
 {
 	FILE* file = fopen(path_to_acl, "w+");
@@ -184,7 +209,11 @@ void update_right_acl(const std::vector<line_right>& list, const char* path_to_a
 	}
 	fclose(file);
 }
-
+/// insert right
+/// \param owner - real uid user
+/// \param filename - filename
+/// \param right - right
+/// \param receiver - uid receiver user
 void insert_right_acl(int owner, const char* filename, int right, int receiver)
 {
 	char path_to_file[64];
@@ -230,6 +259,10 @@ void insert_right_acl(int owner, const char* filename, int right, int receiver)
 	update_right_acl(list_line, path_to_file);
 }
 
+/// send list file by owner
+/// \param fd - socket descriptor
+/// \param storage - storage
+/// \return return code
 int send_storage(int& fd, std::vector<std::pair<string, bool>>& storage)
 {
 	std::string json_str = json(storage).dump();
@@ -242,6 +275,8 @@ int send_storage(int& fd, std::vector<std::pair<string, bool>>& storage)
 }
 
 static std::vector<std::pair<string, bool>> result_static_list_dir;
+/// Recursive function, full list directory
+/// \param current_dir
 void list_dir_in_recursive(const char* current_dir)
 {
     DIR *dir;
@@ -268,7 +303,8 @@ void list_dir_in_recursive(const char* current_dir)
         }
     } 
 }
-
+/// \param current_dir - current directory
+/// \return list of user file
 std::vector<std::pair<string, bool>> list_dir(const char* current_dir)
 {
 	result_static_list_dir.clear();
@@ -276,7 +312,9 @@ std::vector<std::pair<string, bool>> list_dir(const char* current_dir)
 	return result_static_list_dir;
 }
 
-// full path to file
+/// check if there is a password for file
+/// \param filename - full path to file. Format ./user_id/filename
+/// \return true - exists password, false - no password
 bool passwd_exist(const char* filename){
     std::string line;
     char path_to_info_file[] = "/home/SEC_OPERATOR/__info.txt";
@@ -295,6 +333,10 @@ bool passwd_exist(const char* filename){
     in2.close();
     return false;
 }
+/// set a password for file
+/// \param filename - full path to file. Format ./user_id/filename
+/// \param passwd - hash password
+/// \return result a set password (true or false)
 bool set_passwd(const char* filename, const char* passwd){
     char path_to_info_file[] = "/home/SEC_OPERATOR/__info.txt";
 
@@ -327,6 +369,10 @@ bool set_passwd(const char* filename, const char* passwd){
     fileOUT.close();
     return true;
 }
+/// check that password is correct
+/// \param filename - full path to file. Format ./user_id/filename
+/// \param passwd - hash password
+/// \return true - correct password, false - no correct password
 bool correct_passwd(const char* filename, const char* passwd){
     char path_to_info_file[] = "/home/SEC_OPERATOR/__info.txt";
 
@@ -348,6 +394,10 @@ bool correct_passwd(const char* filename, const char* passwd){
     return false;
 }
 
+/// check that user is on ban list for file
+/// \param uid - real uid user
+/// \param filename - full path to file. Format ./user_id/filename
+/// \return true - user in on ban list, false - user is not on ban list
 bool user_exist_in_ban_list(int uid, const char* filename){
     const char path_to_ban_users[] = "/home/SEC_OPERATOR/ban_user.txt";
     std::string line;
@@ -369,6 +419,10 @@ bool user_exist_in_ban_list(int uid, const char* filename){
     in2.close();
     return false;
 }
+/// bun a user
+/// \param uid - uid user to be banned
+/// \param filename - full path to file. Format ./user_id/filename
+/// \return 0, if all ok
 int ban_user(const int uid, const char* filename){
     const char path_to_ban_users[] = "/home/SEC_OPERATOR/ban_user.txt";
 
@@ -382,6 +436,10 @@ int ban_user(const int uid, const char* filename){
     return 0;
 
 }
+/// unbun a user
+/// \param uid - uid user to be unbanned
+/// \param filename - full path to file. Format ./user_id/filename
+/// \return 0, if all ok
 int unban_user(const int uid, const char* filename){
     const char path[] = "/home/SEC_OPERATOR/ban_user.txt";
 
@@ -407,12 +465,19 @@ int unban_user(const int uid, const char* filename){
     return true;
 }
 
+/// performs user authorization
+/// \param uid - real uid user
+/// \param filename - full path to file. Format ./user_id/filename
+/// \param passwd - hash password
+/// \return true - if authorization successful, false - otherwise
 bool authorization(const int uid, const char* filename, const char* passwd){
     return !user_exist_in_ban_list(uid, filename) && correct_passwd(filename, passwd);
 }
 
-
-
+/// analyzes request, checks action, executes it
+/// \param pkg - request, type - struct request
+/// \param fd - socket descriptor
+/// \return response, type - struct response
 response analist_requets(const request& pkg, int& fd)
 {
 	int fd_test_exist;
@@ -474,7 +539,7 @@ response analist_requets(const request& pkg, int& fd)
 		case REQ_REVOKE:
 			res.right = pkg.right;
 			sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
-			fd_test_exist = open(res.path_to_file, O_RDONLY, 0x777);
+			fd_test_exist = open(res.path_to_file, O_RDONLY, 0777);
 			if (fd_test_exist >= 0)
 			{
 				close(fd_test_exist);
@@ -511,6 +576,10 @@ response analist_requets(const request& pkg, int& fd)
 
         case REQ_BAN_USER:
             sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
+            if(res.uid == pkg.target_id){
+                res.result_code = false;
+                break;
+            }
             ban_user(pkg.target_id, res.path_to_file);
             res.result_code = true;
             break;

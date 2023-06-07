@@ -51,13 +51,6 @@ struct request
 	right_t right;
 
     char passwd[32] = {'\0'};
-
-};
-
-struct struct_file {
-    int owner;
-    char filename[32] = {'\0'};
-    char passwd[32] = {'\0'};
 };
 
 struct response
@@ -77,27 +70,4 @@ struct line_right{
 	int right;
 };
 
-
 #endif // TYPE_PACKET_H
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

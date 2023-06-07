@@ -87,9 +87,11 @@ void accept_client(int &listen_fd)
 				{
 				case REQ_OPEN:
 					
-					cout << "\n>> Client " << result_analist.uid << " send request to file " << result_analist.path_to_file << " of: " << result_analist.target_uid << endl;
+					cout << "\n>> Client " << result_analist.uid << " send request to file "
+                    << result_analist.path_to_file << " of: " << result_analist.target_uid << endl;
 					cout << ">> Got right: " << convert_right_to_string(result_analist.right) << endl;
-					msg_log << "Client " << result_analist.uid << " send request to file " << result_analist.path_to_file << " of: " << result_analist.target_uid << endl;
+					msg_log << "Client " << result_analist.uid << " send request to file "
+                    << result_analist.path_to_file << " of: " << result_analist.target_uid << endl;
 					syslog(LOG_NOTICE, "%s", msg_log.str().c_str());
 					msg_log.str("");
 					msg_log << "Got right: " << convert_right_to_string(result_analist.right) << endl;	
@@ -120,10 +122,12 @@ void accept_client(int &listen_fd)
 					break;
 
 				case REQ_GET_RIGHTS:
-					cout << "\n>> Client " << result_analist.uid << " send request check to file " << result_analist.path_to_file << " of: " << result_analist.target_uid << endl;
+					cout << "\n>> Client " << result_analist.uid << " send request check to file "
+                    << result_analist.path_to_file << " of: " << result_analist.target_uid << endl;
 					cout << ">> Got right: " << convert_right_to_string(result_analist.right) << endl;
 					
-					msg_log << ">> Client " << result_analist.uid << " send request check to file " << result_analist.path_to_file << " of: " << result_analist.target_uid << endl;					
+					msg_log << ">> Client " << result_analist.uid << " send request check to file "
+                    << result_analist.path_to_file << " of: " << result_analist.target_uid << endl;
 					syslog(LOG_NOTICE, "%s", msg_log.str().c_str());	
 					msg_log.str("");	
 								
@@ -137,7 +141,8 @@ void accept_client(int &listen_fd)
 				case REQ_GET_STORAGE:
 					cout << "\nClient " << result_analist.uid << " send request get storage of user "
 						 << result_analist.target_uid << endl;
-					msg_log << "Client " << result_analist.uid << " send request get storage of user " << result_analist.target_uid << endl;
+					msg_log << "Client " << result_analist.uid << " send request get storage of user "
+                    << result_analist.target_uid << endl;
 					syslog(LOG_NOTICE, "%s", msg_log.str().c_str());
 					msg_log.str("");
 					syslog(LOG_NOTICE, "%s", msg_log.str().c_str());	
@@ -153,9 +158,11 @@ void accept_client(int &listen_fd)
 					break;
 
 				case REQ_GRANT:
-					cout << "\nClient " << result_analist.uid << " send request to grant right " << result_analist.right << " to file" << result_analist.path_to_file
+					cout << "\nClient " << result_analist.uid << " send request to grant right "
+                    << result_analist.right << " to file" << result_analist.path_to_file
 						 << " for client: " << result_analist.target_uid << endl;
-					msg_log << "Client " << result_analist.uid << " send request to grant right " << result_analist.right << " to file" << result_analist.path_to_file
+					msg_log << "Client " << result_analist.uid << " send request to grant right "
+                    << result_analist.right << " to file" << result_analist.path_to_file
 						 << " for client: " << result_analist.target_uid << endl;
 					syslog(LOG_NOTICE, "%s", msg_log.str().c_str());	
 					msg_log.str("");
@@ -340,9 +347,6 @@ void accept_client(int &listen_fd)
 	}
 }
 
-//
-// Add new user 'SEC_OPERATOR' before run server
-// command: sudo useradd -m -G adm,cdrom,sudo -s /bin/bash SEC_OPERATOR
 
 int main()
 {
@@ -356,7 +360,6 @@ int main()
 	act.sa_flags = SA_NOCLDWAIT;
 	sigaction(SIGCHLD, &act, NULL);
 
-	// sleep(30);
 	getcwd(cwd, sizeof(cwd));
 	cout << cwd << endl;
 	int listen_fd;

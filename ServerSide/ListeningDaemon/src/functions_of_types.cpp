@@ -2,7 +2,6 @@
 #include "functions_of_types.h"
 using namespace std;
 
-
 bool can_read(const right_t& r)
 {
 	return (r == R_READ|| r == R_RDWR|| r == R_RDDEL|| r == R_ALL);
@@ -63,4 +62,3 @@ int get_flag_open_from_right(right_t r)
 		return O_WRONLY;
 	return -1; 
 }
-

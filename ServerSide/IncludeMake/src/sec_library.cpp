@@ -86,8 +86,6 @@ int sec_init()
 }
 #pragma endregion
 
-
-
 #pragma region REQUEST_OPEN_DESCRIPTOR
 int receive_descript(int& fd_received)
 {
@@ -140,6 +138,11 @@ int sec_open(const char* filename, mode_t mode)
 
 #pragma region REQUEST_CHECK_RIGHT
 
+/// check rights to file
+/// \param uid - uid owner file
+/// \param filename - filename
+/// \param rights - rights
+/// \return - rights :)
 right_t sec_check(int uid, const char* filename, right_t rights)
 {
 	struct request pkg{};
@@ -155,6 +158,8 @@ right_t sec_check(int uid, const char* filename, right_t rights)
 #pragma endregion
 
 #pragma region REQUEST_LIST_DIR
+/// Output files in directory
+/// \param elems_dir - files in directory
 void out_put_list_dir(std::vector<std::pair<string, bool>> elems_dir)
 {
 	if (!elems_dir.size())
@@ -175,6 +180,10 @@ void out_put_list_dir(std::vector<std::pair<string, bool>> elems_dir)
 	}
 }
 
+/// send list file
+/// \param fd - socket descriptor
+/// \param storage - std::vector files
+/// \return return code: 0 -  all ok, 1 - otherwise
 int send_storage(int& fd, std::vector<std::pair<string, bool>>& storage)
 {
 	std::string json_str = json(storage).dump();
@@ -185,7 +194,10 @@ int send_storage(int& fd, std::vector<std::pair<string, bool>>& storage)
 	send(fd, msg, len, 0);
 	return 0;
 }
-
+/// reveive list file
+/// \param fd - socket descriptor
+/// \param storage - std::vector files
+/// \return return code: 0 -  all ok, 1 - otherwise
 int receive_storage(int& fd, std::vector<std::pair<string, bool>>& storage)
 {
 	char* buf = new char[1024];
@@ -196,6 +208,9 @@ int receive_storage(int& fd, std::vector<std::pair<string, bool>>& storage)
 	return 0;
 }
 
+/// fill in list file
+/// \param target_uid - owner files
+/// \return std::vector files
 std::vector<std::pair<string, bool>> sec_list_storage(int target_uid)
 {
 	struct request pkg{};
@@ -214,6 +229,11 @@ std::vector<std::pair<string, bool>> sec_list_storage(int target_uid)
 #pragma endregion
 
 #pragma region REQUEST_GRANT
+/// grant right for file
+/// \param uid - owner file
+/// \param filename - filename
+/// \param right - right
+/// \return right :)
 right_t sec_grant(int uid, const char* filename, right_t right)
 {
 	struct request message{};
@@ -229,6 +249,11 @@ right_t sec_grant(int uid, const char* filename, right_t right)
 #pragma endregion
 
 #pragma region REQUEST_REWOKE
+/// revoke right for file
+/// \param uid - uid owner file
+/// \param filename - filename
+/// \param right - right
+/// \return return code: 0 -  all ok, 1 - otherwise
 right_t sec_revoke(int uid, const char* filename, right_t right)
 {
     struct request message{};
@@ -245,6 +270,10 @@ right_t sec_revoke(int uid, const char* filename, right_t right)
 #pragma endregion
 
 #pragma region REQUEST_DELETE
+/// delete file
+/// \param target_uid - uid owner file
+/// \param filename - filename
+/// \return return code: 0 -  all ok, 1 - otherwise
 int sec_unlink_at(int target_uid, const char* filename)
 {
 	struct request pkg{};
@@ -258,13 +287,14 @@ int sec_unlink_at(int target_uid, const char* filename)
 		return 0;
 	return -1;
 }
-
 #pragma endregion
 
-// daria
-
-#pragma region REQUEST_PASSWD_BY_FILE
-
+#pragma regiom REQUEST_AUTHORIZATION
+/// performs user authorization
+/// \param uid - uid owner file
+/// \param filename - filename
+/// \param passwd - hash password
+/// \return true - if authorization successful, false - otherwise
 bool authorization_by_passwd(int uid, const char* filename, const char* passwd) {
     struct request pkg{};
     struct response res{};
@@ -281,21 +311,15 @@ bool authorization_by_passwd(int uid, const char* filename, const char* passwd) 
     return res.result_code;
 
 }
-bool user_in_ban_list(int uid, const char* filename) {
-    struct request pkg{};
-    struct response res{};
+#pragma endregion
 
-    strcpy(pkg.filename, filename);
 
-    pkg.target_id = uid;
-    pkg.req = REQ_USER_IN_BAN;
-
-    send_request(fd_connect_to_daemon, pkg);
-    receive_back_result_analist(res, fd_connect_to_daemon);
-
-    return res.result_code;
-
-}
+#pragma region REQUEST_PASSWD_BY_FILE
+/// set a new password for file
+/// \param uid - uid owner file
+/// \param filename - filename
+/// \param passwd - hash password
+/// \return
 int sec_passwd_by_file(int uid, const char* filename, const char* passwd) {
 
     struct request pkg{};
@@ -314,6 +338,10 @@ int sec_passwd_by_file(int uid, const char* filename, const char* passwd) {
         return 0;
     return -1;
 }
+/// check that is a password for filename
+/// \param uid - uid owner file
+/// \param filename - filename
+/// \return - true - password exist, false - otherwise
 bool passwd_exists(int uid, const char* filename){
     struct request pkg{};
     struct response res{};
@@ -327,10 +355,32 @@ bool passwd_exists(int uid, const char* filename){
 
     return res.result_code;
 }
-
 #pragma endregion
 
 #pragma region REQUEST_BAN_USER
+/// check that user is on ban list
+/// \param uid - uid owner file
+/// \param filename - filename
+/// \return true - if user is on ban list, false - otherwise
+bool user_in_ban_list(int uid, const char* filename) {
+    struct request pkg{};
+    struct response res{};
+
+    strcpy(pkg.filename, filename);
+
+    pkg.target_id = uid;
+    pkg.req = REQ_USER_IN_BAN;
+
+    send_request(fd_connect_to_daemon, pkg);
+    receive_back_result_analist(res, fd_connect_to_daemon);
+
+    return res.result_code;
+
+}
+/// ban user
+/// \param uid - uid user to be ban
+/// \param filename - filename
+/// \return return code: 0 -  all ok, 1 - otherwise
 int sec_ban_user(int uid, const char* filename) {
     struct request pkg{};
     struct response res{};
@@ -345,6 +395,10 @@ int sec_ban_user(int uid, const char* filename) {
         return 0;
     return -1;
 }
+/// unban user
+/// \param uid - uid user to be unban
+/// \param filename - filename
+/// \return return code: 0 -  all ok, 1 - otherwise
 int sec_unban_user(int uid, const char* filename) {
 
     struct request pkg{};
@@ -361,6 +415,3 @@ int sec_unban_user(int uid, const char* filename) {
     return -1;
 }
 #pragma endregion
-
-
-// end daria

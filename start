@@ -9,10 +9,9 @@ echo "home path - $home_path"
 sudo apt install cmake
 sudo apt-get install curl zip unzip tar
 
-echo "application path - $application_path"
-echo "home path - $home_path"
-mkdir dependency
-cd  dependency
+mkdir Dependency
+cd  Dependency
+
 # Dependency installation
 echo "Started downloading additional files"
 git clone https://github.com/Microsoft/vcpkg
@@ -21,12 +20,16 @@ cd vcpkg
 ./vcpkg install nlohmann-json
 sudo apt-get install libconfig-dev
 echo "Finished downloading additional files"
+
 # Modifying CMakeLists.txt
 cd $application_path
-sed -i "s|/usr/local|$application_path/dependency|g" "$application_path/ServerSide/IncludeMake/CMakeLists.txt" 
-sed -i "s|/usr/local|$application_path/dependency|g" "$application_path/ServerSide/ListeningDaemon/CMakeLists.txt" 
-sed -i "s|/usr/local|$application_path/dependency|g" "$application_path/Client/CMakeLists.txt"
+sed -i "s|/usr/local|$application_path/Dependency|g" "$application_path/ServerSide/IncludeMake/CMakeLists.txt" 
+sed -i "s|/usr/local|$application_path/Dependency|g" "$application_path/ServerSide/ListeningDaemon/CMakeLists.txt" 
+sed -i "s|/usr/local|$application_path/Dependency|g" "$application_path/Client/CMakeLists.txt"
+sed -i "s|/usr/local|$application_path/Dependency|g" "$application_path/GUI/CMakeLists.txt"
+
 # Moving dependencies
+echo "Starting make files"
 cd $application_path
 sudo mv config.cfg /usr/local/bin
 sudo mv ./ServerSide/ListeningDaemon/listening_daemon.service /etc/systemd/system
@@ -46,10 +49,17 @@ cmake ..
 make
 
 # Moving daemon.exe
-
+echo "Starting daemon"
 cd $application_path
 
 cd ./ServerSide/ListeningDaemon/build
 sudo mv ListeningDaemon /usr/local/bin
 sudo useradd -m -G adm,sudo -s /bin/bash SEC_OPERATOR
 sudo systemctl start listening_daemon.service
+
+sudo touch /home/SEC_OPERATOR/ban_user.txt
+sudo touch /home/SEC_OPERATOR/__info.txt
+sudo chown SEC_OPERATOR:SEC_OPERATOR /home/SEC_OPERATOR/__info.txt
+sudo chown SEC_OPERATOR:SEC_OPERATOR /home/SEC_OPERATOR/ban_user.txt
+sudo chmod 0700 /home/SEC_OPERATOR/ban_user.txt
+sudo chmod 0700 /home/SEC_OPERATOR/__info.txt

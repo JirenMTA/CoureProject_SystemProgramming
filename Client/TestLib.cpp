@@ -7,8 +7,6 @@
 
 using namespace std;
 
-// TODO
-// TODO clean buffer
 uid_t get_uid(std::string user){
     auto it = std::find_if(user.begin(), user.end(), [](char const &c) {
         return !std::isdigit(c);
@@ -234,10 +232,10 @@ void task_passwd_by_file() {
     std::string owner;
     std::string passwd;
 
-    std::cout << "Input owner: ";
-    std::cin >> owner;
     std::cout << "Input file: ";
     std::cin >> filename;
+    std::cout << "Input owner: ";
+    std::cin >> owner;
     int uid = get_uid(owner);
     if(!authorization(uid, filename))
         return;
@@ -248,11 +246,3 @@ void task_passwd_by_file() {
     int res = sec_passwd_by_file(uid, filename.c_str(), passwd.c_str());
     std::cout << res;
 }
-
-
-
-
-
-
-
-

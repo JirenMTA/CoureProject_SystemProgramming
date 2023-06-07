@@ -6,7 +6,6 @@ using namespace std;
 int main()
 {
 	int choice;
-	
 	sec_init();
 	while (true)
 	{
@@ -50,6 +49,3 @@ int main()
 	}
 	return 0;
 }
-
-
- 
