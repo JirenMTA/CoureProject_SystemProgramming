@@ -56,8 +56,7 @@ void WindowPasswdFile::passwdFile() {
     {
         int uid = std::stoi(user->toPlainText().toStdString());
         string filename = file->text().toStdString();
-        string passwd = pwd->text().toStdString();
-
+        string passwd = std::to_string(std::hash<std::string>{}(pwd->text().toStdString()));
         int res = sec_passwd_by_file(uid, filename.c_str(), passwd.c_str());
         msgBox.setText((string("Got result passwd file: ") + to_string(res)).c_str());
         msgBox.exec();
