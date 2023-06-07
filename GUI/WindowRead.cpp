@@ -84,6 +84,7 @@ void WindowRead::Read(int uid, const char *filename, mode_t mode) {
         {
             file_size = lseek(receivedFd, 0, SEEK_END);
             short_text = new char[(int)file_size+1];
+            memset(short_text, 0, (int)file_size+1); 
             lseek(receivedFd, 0, SEEK_SET);
             if (read(receivedFd, short_text, (int)file_size) < 0)
                 throw std::invalid_argument("No permission to read!");
@@ -194,6 +195,7 @@ void WindowRead::setTextHandler() {
 void WindowRead::passwordWriteHandler() {
     off_t file_size;
     char* short_text;
+
     QMessageBox msgBox;
     int uid = std::stoi(name->toPlainText().toStdString());
     string filename = file->toPlainText().toStdString();
