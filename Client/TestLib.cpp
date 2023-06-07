@@ -29,6 +29,7 @@ bool authorization(int uid, std::string& filename){
         std::cout << "User in ban list " << std::endl;
         return false;
     }
+
     if(passwd_exists(uid, filename.c_str())) {
         std::cout << "Input passwd ";
         std::string passwd = input_passwd();
@@ -192,9 +193,6 @@ void task_try_delete()
     cout << "Result delete: " << res_delete << endl;
 }
 
-#pragma region daria
-
-
 void task_try_ban_user() {
     std::string filename;
     std::string owner;
@@ -250,10 +248,6 @@ void task_passwd_by_file() {
     int res = sec_passwd_by_file(uid, filename.c_str(), passwd.c_str());
     std::cout << res;
 }
-
-
-#pragma endregion daria
-
 
 
 

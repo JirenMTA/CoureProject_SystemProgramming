@@ -276,19 +276,17 @@ std::vector<std::pair<string, bool>> list_dir(const char* current_dir)
 	return result_static_list_dir;
 }
 
-bool passwd_exist(const int uid, const char* filename){
+// full path to file
+bool passwd_exist(const char* filename){
     std::string line;
-    char path_to_info_file[64];
-    sprintf(path_to_info_file, "/home/SEC_OPERATOR/%d/__info.txt", uid);
-    char pass_file[64];
-    sprintf(pass_file, "%s", filename);
+    char path_to_info_file[] = "/home/SEC_OPERATOR/__info.txt";
 
     std::ifstream in2(path_to_info_file);
     if (in2.is_open())
     {
         while (std::getline(in2, line))
         {
-            if (line.find(pass_file) == 0) {
+            if (line.find(filename) == 0) {
                 in2.close();
                 return true;
             }
@@ -297,29 +295,31 @@ bool passwd_exist(const int uid, const char* filename){
     in2.close();
     return false;
 }
-bool set_passwd(const int uid, const char* filename, const char* passwd){
-    char path_to_info_file[64];
-    sprintf(path_to_info_file, "/home/SEC_OPERATOR/%d/__info.txt", uid);
+bool set_passwd(const char* filename, const char* passwd){
+    char path_to_info_file[] = "/home/SEC_OPERATOR/__info.txt";
 
     char data[128];
     sprintf(data, "%s %s", filename, passwd);
 
-    if(passwd_exist(uid, filename)){
+    if(passwd_exist(filename)){
         std::string line;
+        std::ifstream fin;
 
-        std::ifstream in2(path_to_info_file);
+        fin.open(path_to_info_file);
+        std::ofstream temp;
+        temp.open("temp.txt");
 
-        if (in2.is_open())
-        {
-            while (std::getline(in2, line))
-            {
-                if (line.find(filename) == 0) {
-                    line = std::string(data);
-                    in2.close();
-                    return true;
-                }
-            }
+        while (getline(fin, line)) {
+            if (line.find(filename))
+                temp << line << std::endl;
+            else
+                temp << data <<std::endl;
         }
+
+        temp.close();
+        fin.close();
+        remove(path_to_info_file);
+        rename("temp.txt", path_to_info_file);
     }
 
     ofstream fileOUT(path_to_info_file, ios::app);
@@ -327,9 +327,9 @@ bool set_passwd(const int uid, const char* filename, const char* passwd){
     fileOUT.close();
     return true;
 }
-bool correct_passwd(const int uid, const char* filename, const char* passwd){
-    char path_to_info_file[64];
-    sprintf(path_to_info_file, "/home/SEC_OPERATOR/%d/__info.txt", uid);
+bool correct_passwd(const char* filename, const char* passwd){
+    char path_to_info_file[] = "/home/SEC_OPERATOR/__info.txt";
+
     char data[128];
     sprintf(data, "%s %s", filename, passwd);
 
@@ -369,7 +369,6 @@ bool user_exist_in_ban_list(int uid, const char* filename){
     in2.close();
     return false;
 }
-
 int ban_user(const int uid, const char* filename){
     const char path_to_ban_users[] = "/home/SEC_OPERATOR/ban_user.txt";
 
@@ -409,7 +408,7 @@ int unban_user(const int uid, const char* filename){
 }
 
 bool authorization(const int uid, const char* filename, const char* passwd){
-    return !user_exist_in_ban_list(uid, filename) && correct_passwd(uid, filename, passwd);
+    return !user_exist_in_ban_list(uid, filename) && correct_passwd(filename, passwd);
 }
 
 
@@ -423,6 +422,10 @@ response analist_requets(const request& pkg, int& fd)
 	res.uid = get_uid_from_socket(fd);
 	res.target_uid = pkg.target_id;
 	res.mode = pkg.mode;
+
+    char path_file_target_id[64];
+    sprintf(path_file_target_id, "./%d/%s", pkg.target_id, pkg.filename);
+
 	switch (pkg.req)
 	{
 		case REQ_OPEN:
@@ -508,7 +511,7 @@ response analist_requets(const request& pkg, int& fd)
 
         case REQ_BAN_USER:
             sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
-            ban_user(res.target_uid, res.path_to_file);
+            ban_user(pkg.target_id, res.path_to_file);
             res.result_code = true;
             break;
         case REQ_UNBAN_USER:
@@ -518,22 +521,20 @@ response analist_requets(const request& pkg, int& fd)
             break;
         case REQ_SET_PASSWD:
             sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
-            set_passwd(res.uid, pkg.filename, pkg.passwd);
+            set_passwd(res.path_to_file, pkg.passwd);
             res.result_code = true;
             break;
         case REQ_EXIST_PASSWD:
             sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
-            res.result_code = passwd_exist(res.uid, pkg.filename);
+            res.result_code = passwd_exist(path_file_target_id);
             break;
         case REQ_AUTH_BY_PASSWD:
             sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
-            res.result_code = authorization(res.uid, pkg.filename, pkg.passwd);
+            res.result_code = authorization(res.uid, path_file_target_id, pkg.passwd);
             break;
         case REQ_USER_IN_BAN:
             sprintf(res.path_to_file, "./%d/%s", res.uid, pkg.filename);
-            char path[64];
-            sprintf(path, "./%d/%s", pkg.target_id, pkg.filename);
-            res.result_code = user_exist_in_ban_list(res.uid, path);
+            res.result_code = user_exist_in_ban_list(res.uid, path_file_target_id);
             break;
 	}
 	return res;
