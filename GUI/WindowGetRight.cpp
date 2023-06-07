@@ -101,8 +101,7 @@ void WindowGetRight::passwordHandler(){
     QMessageBox msgBox;
     int uid = std::stoi(name->toPlainText().toStdString());
     string filename = file->toPlainText().toStdString();
-    string password = passwd->text().toStdString();
-
+    string password = std::to_string(std::hash<std::string>{}(passwd->text().toStdString()));
     if(authorization_by_passwd(uid, filename.c_str(), password.c_str())){
         GetRight(uid, filename.c_str(), R_NONE);
     }

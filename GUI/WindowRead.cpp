@@ -125,14 +125,13 @@ void WindowRead::passwordReadHandler() {
     QMessageBox msgBox;
     int uid = std::stoi(name->toPlainText().toStdString());
     string filename = file->toPlainText().toStdString();
-    string password = passwd->text().toStdString();
-
+    string password = std::to_string(std::hash<std::string>{}(passwd->text().toStdString()));
     if(authorization_by_passwd(uid, filename.c_str(), password.c_str())){
         Read(uid, filename.c_str(), 0777);
     }
     else{
         text->setText(QString(""));
-        msgBox.setText(QString("Error"));
+        msgBox.setText(QString("Invalid password"));
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.exec();
     }
@@ -153,7 +152,6 @@ void WindowRead::Write(int uid, const char *filename, mode_t mode) {
             string new_text = text->toPlainText().toStdString();
             if( write(receivedFd, new_text.c_str(), new_text.length()+1) < 0)
             {
-
                 throw  std::invalid_argument("No permission to write");
             }
         }
@@ -201,8 +199,7 @@ void WindowRead::passwordWriteHandler() {
     QMessageBox msgBox;
     int uid = std::stoi(name->toPlainText().toStdString());
     string filename = file->toPlainText().toStdString();
-    string password = passwd->text().toStdString();
-
+    string password = std::to_string(std::hash<std::string>{}(passwd->text().toStdString()));
     if(authorization_by_passwd(uid, filename.c_str(), password.c_str())){
         msgBox.setText("Are you sure to write new text?");
         msgBox.setIcon(QMessageBox::Warning);
@@ -210,19 +207,11 @@ void WindowRead::passwordWriteHandler() {
         msgBox.addButton(QMessageBox::No);
         if (msgBox.exec() == QMessageBox::No)
             return;
-        if (passwd_exists(uid, filename.c_str())){
-            okBtn->setEnabled(true);
-            passwd->setReadOnly(false);
-            labelPasswd->setText("Enter password");
-            connect(okBtn, &QPushButton::released, this, &WindowRead::passwordWriteHandler);
-        }
-        else{
-            Write(uid, filename.c_str(), 0777);
-        }
+        Write(uid, filename.c_str(), 0777);
     }
     else{
         text->setText(QString(""));
-        msgBox.setText(QString("Error"));
+        msgBox.setText(QString("Invalid password"));
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.exec();
     }

@@ -127,7 +127,7 @@ void WindowBanUser::banPasswordHandler(){
     QMessageBox msgBox;
     int uid = std::stoi(user->toPlainText().toStdString());
     string filename = file->toPlainText().toStdString();
-    string password = passwd->text().toStdString();
+    string password = std::to_string(std::hash<std::string>{}(passwd->text().toStdString()));
     if(authorization_by_passwd(uid, filename.c_str(), password.c_str())){
         Ban(uid, filename.c_str());
     }
@@ -142,8 +142,7 @@ void WindowBanUser::unbanPasswordHandler(){
     QMessageBox msgBox;
     int uid = std::stoi(user->toPlainText().toStdString());
     string filename = file->toPlainText().toStdString();
-    string password = passwd->text().toStdString();
-
+    string password = std::to_string(std::hash<std::string>{}(passwd->text().toStdString()));
     if(authorization_by_passwd(uid, filename.c_str(), password.c_str())){
         Unban(uid, filename.c_str());
     }
