@@ -49,6 +49,7 @@ int sec_passwd_by_file(int uid, const char* filename, const char* passwd);
 #pragma region REQUEST_BAN_USER
 int sec_ban_user(int uid, const char* filename);
 int sec_unban_user(int uid, const char* filename);
+bool user_in_ban_list(int uid, const char* filename);
 #pragma endregion
 
 // end daria

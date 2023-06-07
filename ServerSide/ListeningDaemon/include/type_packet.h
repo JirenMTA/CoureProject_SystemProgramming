@@ -27,7 +27,8 @@ enum TYPE
     REQ_UNBAN_USER,
     REQ_SET_PASSWD,
     REQ_EXIST_PASSWD,
-    REQ_AUTH_BY_PASSWD
+    REQ_AUTH_BY_PASSWD,
+    REQ_USER_IN_BAN
 }; 
 
 enum right_t

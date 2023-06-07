@@ -281,6 +281,21 @@ bool authorization_by_passwd(int uid, const char* filename, const char* passwd) 
     return res.result_code;
 
 }
+bool user_in_ban_list(int uid, const char* filename) {
+    struct request pkg{};
+    struct response res{};
+
+    strcpy(pkg.filename, filename);
+
+    pkg.target_id = uid;
+    pkg.req = REQ_USER_IN_BAN;
+
+    send_request(fd_connect_to_daemon, pkg);
+    receive_back_result_analist(res, fd_connect_to_daemon);
+
+    return res.result_code;
+
+}
 int sec_passwd_by_file(int uid, const char* filename, const char* passwd) {
 
     struct request pkg{};
