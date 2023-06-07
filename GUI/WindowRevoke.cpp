@@ -1,11 +1,4 @@
-//
-// Created by hung on 15.03.23.
-//
-
 #include "WindowRevoke.h"
-//
-// Created by hung on 08.03.23.
-//
 
 void WindowRevoke::AddBtnAndTb() {
     this->setWindowTitle("Rewoke");
@@ -65,8 +58,27 @@ WindowRevoke::WindowRevoke(QSize fixedSize) {
     int screenWidth = wid.width();
     int screenHeight = wid.height();
     this->setGeometry((screenWidth/2)-(width/2),(screenHeight/2)-(height/2),width,height);
-
     AddBtnAndTb();
+}
+
+void WindowRevoke::Revoke(int uid, const char *filename, right_t right) {
+    stringstream msgRight;
+    QMessageBox msgBox;
+    try
+    {
+        right_t received_r = sec_revoke(uid, filename, right);
+        msgRight << received_r;
+        msgBox.setText((string("Got result rewoke-right: ") + msgRight.str()).c_str());
+        msgBox.exec();
+    }
+    catch(std::invalid_argument const& ex){
+        msgBox.setText(QString("Error  : ") + QString(ex.what()));
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+    }
+    okBtn->setEnabled(false);
+    passwd->setReadOnly(true);
+    labelPasswd->setText("");
 }
 
 void WindowRevoke::revokeRight() {
@@ -81,27 +93,12 @@ void WindowRevoke::revokeRight() {
         connect(okBtn, &QPushButton::released, this, &WindowRevoke::passwordHandler);
     }
     else{
-        try
-        {
-            right_t r = (right_t)(std::stoi(right->toPlainText().toStdString()));
-            right_t received_r = sec_revoke(uid, filename.c_str(), r);
-            msgRight << received_r;
-            msgBox.setText((string("Got result rewoke-right: ") + msgRight.str()).c_str());
-            msgBox.exec();
-        }
-        catch(std::invalid_argument const& ex){
-            msgBox.setText(QString("Error  : ") + QString(ex.what()));
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.exec();
-        }
-        okBtn->setEnabled(false);
-        passwd->setReadOnly(true);
-        labelPasswd->setText("");
+        right_t r = (right_t)(std::stoi(right->toPlainText().toStdString()));
+        Revoke(uid, filename.c_str(), r);
     }
 }
 
 void WindowRevoke::passwordHandler(){
-    stringstream msgRight;
     QMessageBox msgBox;
     stringstream right_in_stream;
     int uid = std::stoi(user->toPlainText().toStdString());
@@ -109,22 +106,8 @@ void WindowRevoke::passwordHandler(){
     string password = passwd->text().toStdString();
 
     if(authorization_by_passwd(uid, filename.c_str(), password.c_str())){
-        try
-        {
-            right_t r = (right_t)(std::stoi(right->toPlainText().toStdString()));
-            right_t received_r = sec_revoke(uid, filename.c_str(), r);
-            msgRight << received_r;
-            msgBox.setText((string("Got result rewoke-right: ") + msgRight.str()).c_str());
-            msgBox.exec();
-        }
-        catch(std::invalid_argument const& ex){
-            msgBox.setText(QString("Error  : ") + QString(ex.what()));
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.exec();
-        }
-        okBtn->setEnabled(false);
-        passwd->setReadOnly(true);
-        labelPasswd->setText("");
+        right_t r = (right_t)(std::stoi(right->toPlainText().toStdString()));
+        Revoke(uid, filename.c_str(), r);
     }
     else{
         msgBox.setText(QString("Error"));

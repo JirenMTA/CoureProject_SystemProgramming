@@ -1,7 +1,3 @@
-//
-// Created by hung on 07.03.23.
-//
-
 #ifndef TRYGUI_WINDOWGETRIGHT_H
 #define TRYGUI_WINDOWGETRIGHT_H
 
@@ -13,6 +9,8 @@ public:
     WindowGetRight(QSize fixedSize);
     WindowGetRight(const WindowGetRight&) = delete;
     void AddBtnAndTb();
+    void GetRight(int uid, const char* filename, right_t rights);
+
 private:
     QPushButton* btn;
     QTextEdit* name;
@@ -21,15 +19,10 @@ private:
     QLineEdit* passwd;
     QLabel* labelPasswd;
     QPushButton* okBtn;
+
 private slots:
     void handlerGetRight();
     void passwordHandler();
-
 };
 
-
-#endif //TRYGUI_WINDOWREAD_H
-
-
-
-#define TRYGUI_WINDOWGETRIGHT_H
+#endif

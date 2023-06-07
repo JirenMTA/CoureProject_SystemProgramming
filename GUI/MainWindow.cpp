@@ -42,7 +42,7 @@ MainWindow::MainWindow(const QSize& maxBackgroundSize) {
     btnDelete->setFixedSize(QSize(200, 40));
     connect(btnDelete, &QPushButton::released, this, &MainWindow::handlerDelete);
 
-    btnBanUser= new QPushButton("Ban/unban user");
+    btnBanUser= new QPushButton("Ban/Unban user");
     btnBanUser->setFixedSize(QSize(200, 40));
     connect(btnBanUser, &QPushButton::released, this, &MainWindow::handlerBanUser);
 
@@ -63,7 +63,6 @@ MainWindow::MainWindow(const QSize& maxBackgroundSize) {
     grid->addWidget(btnPasswdFile,4, 1);
     widget->show();
     sec_init();
-
 }
 
  MainWindow::~MainWindow() noexcept {

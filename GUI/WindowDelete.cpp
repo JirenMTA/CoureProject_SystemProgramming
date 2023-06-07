@@ -51,14 +51,31 @@ WindowDelete::WindowDelete(QSize fixedSize) {
     int screenWidth = wid.width();
     int screenHeight = wid.height();
     this->setGeometry((screenWidth/2)-(width/2),(screenHeight/2)-(height/2),width,height);
-
     AddBtnAndTb();
 }
 
-void WindowDelete::deleteFile() {
+void WindowDelete::Delete(int uid, const char* filename){
     QMessageBox msgBox;
+    try
+    {
+        int res = sec_unlink_at(uid, filename);
+        msgBox.setText((string("Got result delete: ") + to_string(res)).c_str());
+        msgBox.exec();
+    }
+    catch(std::invalid_argument const& ex){
+        msgBox.setText(QString("Error  : ") + QString(ex.what()));
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+    }
+    okBtn->setEnabled(false);
+    passwd->setReadOnly(true);
+    labelPasswd->setText("");
+}
+
+void WindowDelete::deleteFile() {
     int uid = std::stoi(user->toPlainText().toStdString());
     string filename = file->toPlainText().toStdString();
+
     if (passwd_exists(uid, filename.c_str())){
         okBtn->setEnabled(true);
         passwd->setReadOnly(false);
@@ -66,20 +83,7 @@ void WindowDelete::deleteFile() {
         connect(okBtn, &QPushButton::released, this, &WindowDelete::passwordHandler);
     }
     else{
-        try
-        {
-            int res = sec_unlink_at(uid, filename.c_str());
-            msgBox.setText((string("Got result delete: ") + to_string(res)).c_str());
-            msgBox.exec();
-        }
-        catch(std::invalid_argument const& ex){
-            msgBox.setText(QString("Error  : ") + QString(ex.what()));
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.exec();
-        }
-        okBtn->setEnabled(false);
-        passwd->setReadOnly(true);
-        labelPasswd->setText("");
+        Delete(uid, filename.c_str());
     }
 }
 
@@ -90,20 +94,7 @@ void WindowDelete::passwordHandler(){
     string password = passwd->text().toStdString();
 
     if(authorization_by_passwd(uid, filename.c_str(), password.c_str())){
-        try
-        {
-            int res = sec_unlink_at(uid, filename.c_str());
-            msgBox.setText((string("Got result delete: ") + to_string(res)).c_str());
-            msgBox.exec();
-        }
-        catch(std::invalid_argument const& ex){
-            msgBox.setText(QString("Error  : ") + QString(ex.what()));
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.exec();
-        }
-        okBtn->setEnabled(false);
-        passwd->setReadOnly(true);
-        labelPasswd->setText("");
+        Delete(uid, filename.c_str());
     }
     else{
         msgBox.setText(QString("Error"));

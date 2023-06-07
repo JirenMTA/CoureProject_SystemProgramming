@@ -62,34 +62,39 @@ WindowGrant::WindowGrant(QSize fixedSize) {
     AddBtnAndTb();
 }
 
-void WindowGrant::setRight() {
+void WindowGrant::Grant(int uid, const char* filename, right_t right) {
     QMessageBox msgBox;
     stringstream msgRight;
-    string uid = user->toPlainText().toStdString();
+    try
+    {
+        right_t received_r = sec_grant(uid, filename, right);
+        msgBox.setText((string("Got result granted-right: ") + msgRight.str()).c_str());
+        msgBox.exec();
+    }
+    catch(std::invalid_argument const& ex){
+        msgBox.setText(QString("Error: ") + QString(ex.what()));
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+    }
+    okBtn->setEnabled(false);
+    passwd->setReadOnly(true);
+    labelPasswd->setText("");
+}
+
+void WindowGrant::setRight() {
+    stringstream msgRight;
+    int uid = std::stoi(user->toPlainText().toStdString());
     string filename = file->toPlainText().toStdString();
-    if (passwd_exists(std::stoi(uid), filename.c_str())){
+    if (passwd_exists(uid, filename.c_str())){
         okBtn->setEnabled(true);
         passwd->setReadOnly(false);
         labelPasswd->setText("Enter password");
         connect(okBtn, &QPushButton::released, this, &WindowGrant::passwordHandler);
     }
     else{
-        try
-        {
-            right_t r = (right_t)(std::stoi(right->toPlainText().toStdString()));
-            msgRight << r;
-            right_t received_r = sec_grant(std::stoi(uid), filename.c_str(), r);
-            msgBox.setText((string("Got result granted-right: ") + msgRight.str()).c_str());
-            msgBox.exec();
-        }
-        catch(std::invalid_argument const& ex){
-            msgBox.setText(QString("Eeerror  : ") + QString(ex.what()));
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.exec();
-        }
-        okBtn->setEnabled(false);
-        passwd->setReadOnly(true);
-        labelPasswd->setText("");
+        right_t r = (right_t)(std::stoi(right->toPlainText().toStdString()));
+        msgRight << r;
+        Grant(uid, filename.c_str(), r);
     }
 }
 
@@ -100,24 +105,10 @@ void WindowGrant::passwordHandler(){
     int uid = std::stoi(user->toPlainText().toStdString());
     string filename = file->toPlainText().toStdString();
     string password = passwd->text().toStdString();
-
     if(authorization_by_passwd(uid, filename.c_str(), password.c_str())){
-        try
-        {
-            right_t r = (right_t)(std::stoi(right->toPlainText().toStdString()));
-            msgRight << r;
-            right_t received_r = sec_grant(uid, filename.c_str(), r);
-            msgBox.setText((string("Got result granted-right: ") + msgRight.str()).c_str());
-            msgBox.exec();
-        }
-        catch(std::invalid_argument const& ex){
-            msgBox.setText(QString("Eeerror  : ") + QString(ex.what()));
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.exec();
-        }
-        okBtn->setEnabled(false);
-        passwd->setReadOnly(true);
-        labelPasswd->setText("");
+        right_t r = (right_t)(std::stoi(right->toPlainText().toStdString()));
+        msgRight << r;
+        Grant(uid, filename.c_str(), r);
     }
     else{
         msgBox.setText(QString("Error"));

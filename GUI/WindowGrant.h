@@ -21,8 +21,11 @@ private:
 public:
     WindowGrant(QSize fixedSize);
     void AddBtnAndTb();
+    void Grant(int uid, const char* filename, right_t right);
+
 public slots:
     void setRight();
+
 private slots:
     void passwordHandler();
 };

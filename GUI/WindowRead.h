@@ -8,6 +8,9 @@ public:
     WindowRead(QSize fixedSize);
     WindowRead(const WindowRead&) = delete;
     void AddBtnAndTb();
+    void Read(int uid, const char* filename, mode_t mode);
+    void Write(int uid, const char* filename, mode_t mode);
+
 private:
     QPushButton* btn;
     QTextEdit* name;
@@ -17,6 +20,7 @@ private:
     QLabel* labelPasswd;
     QPushButton* okBtn;
     QPushButton* setText;
+
 private slots:
     void getDataOfFile();
     void setTextHandler();
@@ -25,4 +29,4 @@ private slots:
 };
 
 
-#endif //TRYGUI_WINDOWREAD_H
+#endif

@@ -1,12 +1,3 @@
-//
-// Created by hung on 10.03.23.
-//
-
-#include "WindowListStorage.h"
-//
-// Created by hung on 07.03.23.
-//
-
 #include "WindowListStorage.h"
 
 using namespace std;
@@ -19,10 +10,8 @@ WindowListStorage::WindowListStorage(QSize fixedSize) {
     int screenWidth = wid.width();
     int screenHeight = wid.height();
     this->setGeometry((screenWidth/2)-(width/2),(screenHeight/2)-(height/2),width,height);
-
     AddBtnAndTb();
 }
-
 
 void WindowListStorage::AddBtnAndTb()
 {

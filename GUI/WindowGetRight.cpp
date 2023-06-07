@@ -1,7 +1,3 @@
-//
-// Created by hung on 07.03.23.
-//
-
 #include "WindowGetRight.h"
 
 using namespace std;
@@ -14,7 +10,6 @@ WindowGetRight::WindowGetRight(QSize fixedSize) {
     int screenWidth = wid.width();
     int screenHeight = wid.height();
     this->setGeometry((screenWidth/2)-(width/2),(screenHeight/2)-(height/2),width,height);
-
     AddBtnAndTb();
 }
 
@@ -67,60 +62,49 @@ void WindowGetRight::AddBtnAndTb()
     widget2->show();
 }
 
+void WindowGetRight::GetRight(int uid, const char *filename, right_t rights) {
+    QMessageBox msgBox;
+    stringstream right_in_stream;
+    try
+    {
+        right_t r = sec_check(uid, filename, rights);
+        right_in_stream << r;
+        text->setText(right_in_stream.str().c_str());
+    }
+    catch (const std::exception& ex)
+    {
+        msgBox.setText(QString("Error: ") + QString(ex.what()));
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+    }
+    okBtn->setEnabled(false);
+    passwd->setReadOnly(true);
+    labelPasswd->setText("");
+}
+
 void WindowGetRight::handlerGetRight()
 {
-    string uid = name->toPlainText().toStdString();
+    int uid = std::stoi(name->toPlainText().toStdString());
     string filename = file->toPlainText().toStdString();
-    stringstream right_in_stream;
-    QMessageBox msgBox;
-    if (passwd_exists(std::stoi(uid), filename.c_str())){
+    if (passwd_exists(uid, filename.c_str())){
         okBtn->setEnabled(true);
         passwd->setReadOnly(false);
         labelPasswd->setText("Enter password");
         connect(okBtn, &QPushButton::released, this, &WindowGetRight::passwordHandler);
     }
     else{
-        try
-        {
-            right_t r = sec_check(std::stoi(uid), filename.c_str(), R_NONE);
-            right_in_stream << r;
-            text->setText(right_in_stream.str().c_str());
-        }
-        catch (const std::exception& ex)
-        {
-            msgBox.setText(QString("Error: ") + QString(ex.what()));
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.exec();
-        }
-        okBtn->setEnabled(false);
-        passwd->setReadOnly(true);
-        labelPasswd->setText("");
+        GetRight(uid, filename.c_str(), R_NONE);
     }
 }
 
 void WindowGetRight::passwordHandler(){
     QMessageBox msgBox;
-    stringstream right_in_stream;
     int uid = std::stoi(name->toPlainText().toStdString());
     string filename = file->toPlainText().toStdString();
     string password = passwd->text().toStdString();
 
     if(authorization_by_passwd(uid, filename.c_str(), password.c_str())){
-        try
-        {
-            right_t r = sec_check(uid, filename.c_str(), R_NONE);
-            right_in_stream << r;
-            text->setText(right_in_stream.str().c_str());
-        }
-        catch (const std::exception& ex)
-        {
-            msgBox.setText(QString("Error: ") + QString(ex.what()));
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.exec();
-        }
-        okBtn->setEnabled(false);
-        passwd->setReadOnly(true);
-        labelPasswd->setText("");
+        GetRight(uid, filename.c_str(), R_NONE);
     }
     else{
         text->setText(QString(""));

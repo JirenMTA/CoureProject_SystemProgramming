@@ -16,13 +16,14 @@ private:
     QPushButton* okBtn;
 public:
     WindowBanUser(QSize fixedSize);
-
     void AddBtnAndTb();
+    void Ban(int uid, const char* filename);
+    void Unban(int uid, const char* filename);
 
-public slots:
+private slots:
     void banUser();
     void unbanUser();
-private slots:
-    void passwordHandler();
+    void banPasswordHandler();
+    void unbanPasswordHandler();
 };
 #endif
